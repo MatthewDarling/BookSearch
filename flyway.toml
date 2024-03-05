@@ -1,0 +1,10 @@
+# More information on the parameters can be found here: https://documentation.red-gate.com/flyway/flyway-cli-and-api/configuration/parameters
+
+[environments.local]
+url = "jdbc:postgresql://localhost:5432/booksearch"
+user = "booksearch"
+password = "bookitysearch"
+
+[flyway]
+environment = "local" # It is recommended to configure environment as a commandline argument. This allows using different environments depending on the caller.
+locations = ["filesystem:./sql/booksearch"]
