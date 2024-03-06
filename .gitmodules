@@ -1,0 +1,9 @@
+[submodule "pg_ts_semantic_headline"]
+	path = pg_ts_semantic_headline
+	url = git@github.com:thevermeer/pg_ts_semantic_headline.git
+[submodule "pg_large_text_search"]
+	path = pg_large_text_search
+	url = git@github.com:thevermeer/pg_large_text_search.git
+[submodule "pg_tap"]
+	path = pg_tap
+	url = git@github.com:theory/pgtap.git
