@@ -14,10 +14,11 @@ compile_sql:
 
 create_db:
 	psql -U $(DB_USER) -d postgres -f ./sql/init.sql
+	psql -U $(DB_USER) -d booksearch -f ./sql/create_extensions.sql
 	flyway migrate
 
 fill_db:
-	psql -U $(DB_USER) -d booksearch -f ./sql/load_public_domain_texts.sql
+	psql -U $(DB_USER) -v path="'~/BookSearch/public_domain_texts'" -d booksearch -f ./sql/load_public_domain_texts.sql
 
 kill_db:
 	psql -U $(DB_USER) -d postgres -f ./sql/testing_cleanup.sql

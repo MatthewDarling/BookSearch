@@ -11,13 +11,15 @@ BEGIN
 END;
 $BODY$ LANGUAGE plpgsql SECURITY DEFINER;
 
+
+-- INSERT ---------------------------------------------------------------------
+
 INSERT INTO files (filename, title, author, content)
-SELECT --ROW_NUMBER () OVER (PARTITION BY filename) as seq_no, 
-       filename, title, author, content
+SELECT filename, title, author, content
 FROM (SELECT filename, title, MAX(author) as author, STRING_AGG(split, ' ') as content     
       FROM (SELECT filename, title[1], author[1], split, ROW_NUMBER () OVER () as wordno
             FROM (SELECT pg_read_file(filename) AS text, filename  
-                  FROM ls_files_extended('~/BookSearch/public_domain_texts/', NULL, 'filename') 
+                  FROM ls_files_extended((:path)::TEXT, NULL, 'filename') 
                   WHERE substring(filename, '.txt') <> '') AS file,
       regexp_matches(file.text, 'Title: ([^\u000D]+)', 'g') AS title,
       regexp_matches(file.text, 'Author: ([^\u000D]+)', 'g') AS author,
