@@ -39,40 +39,40 @@
 
 ;; List Item ------------------------------------------------------------------
 (defui list-item
-  [{:keys [content title author] :as props}]
+  [{:keys [file_id content title author] :as props}]
   ;; = Temp --
-  {:pre [(s/valid? :list/document props)]}
+  {:pre [(s/valid? :list/document props)]} 
   ($ :.file
      ($ :div.file-header
-        {:key title}
+        {:key file_id}
         ($ :h3 title)
         ($ :h4 author))
      ($ :span.file-text content)))
 
 ;; API Request ----------------------------------------------------------------
 (defn make-remote-call [endpoint callback]
-  (go (let [response (<! (http/get endpoint 
-                                   {:on-success js/console.log}))]
+  (go (let [response (<! (http/get endpoint))]
         (callback (-> response
                       :body)))))
 
 ;; Application ----------------------------------------------------------------
 (defui file-list []
-  (let [[search set-search-term!] (persistent.state/use-persistent-state "booksearch/search-history" "")
-        [files set-files!] (persistent.state/use-persistent-state "booksearch/documents" [])
+  (let [[search set-search-term!] (persistent.state/with-local-storage "booksearch/search-history" "")
+        [files set-files!] (persistent.state/with-local-storage "booksearch/documentes" [])
         on-search (fn [search-term]
                     (set-search-term! search-term)
-                    (make-remote-call (str "https://jsonplaceholder.typicode.com/posts/" search-term)
+                    (make-remote-call (str "https://jsonplaceholder.typicode.com/posts/")
                                       (fn [response]
                                         (set-files! #(vector response)))))]
     ($ :.app
        ($ header)
        ($ text-field {:initial-value search
                       :on-search on-search})
-       (for [file files]
+       (for [[id file] (map-indexed vector (first files))]
          ($ list-item
             ; - Temp --
-            (assoc (clojure.set/rename-keys file {:body :content})
-                   :author "C. Thomas Howell"))))))
+            (assoc (select-keys (clojure.set/rename-keys file {:body :content}) [:content :title])
+                   :author "C. Thomas Howell"
+                   :file_id id))))))
 
 

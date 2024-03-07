@@ -1,7 +1,8 @@
 :root {
     --color-accent: #b9c5df;
     --color-text: #173878;
-    --light-bg: rgba(227, 227, 234, .41);
+    --light-bg: #f6f6f6;
+    --app-bg: #fafafa;
 }
 
 html {
@@ -13,7 +14,6 @@ html * {
 }
 
 h1, h2 {
-    
     padding: 0;
     color: var(--color-text);
     font-weight: 100;
@@ -58,7 +58,7 @@ a {
     display: flex;
     flex-direction: column;
     width: 90vw;
-    background: #fafafa;
+    background: var(--app-bg);
     border-radius: 2px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     border: 2px solid var(--color-accent);
@@ -83,11 +83,15 @@ a {
     flex-direction: column;
     flex: 1 1 100%;
     padding: 0px 12px;
+    background: var(--light-bg);
     border-left: none;
     border-right: none;
     border-top: 2px solid var(--color-accent);
     border-bottom: 2px solid var(--color-accent);
     color: var(--color-text);
+    position: sticky;
+    top: 0px;
+    z-index: 2;
 }
 
 .text-input {
@@ -129,21 +133,7 @@ a {
 .file-text {
     flex: 1;
     color: var(--color-text);
+    padding: 8px 16px 4px 16px;
 }
 
-.file-delete-button {
-    border: none;
-    background: transparent;
-    font-size: 20px;
-    color: #ff3c3c;
-    cursor: pointer;
-}
 
-.file-text-field {
-    font-size: 11px;
-    border: none;
-    background: transparent;
-    color: var(--color-text);
-    outline: none;
-    flex: 1;
-}

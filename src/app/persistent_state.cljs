@@ -4,7 +4,7 @@
    [uix.core :as uix]
    [uix.dom]))
 
-(defn use-persistent-state
+(defn with-local-storage
   "Loads initial state from local storage and persists every updated state value
   Returns a tuple of the current state value and an updater function. This function
   will persist the type of the inital-value."
