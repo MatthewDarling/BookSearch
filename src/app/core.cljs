@@ -1,5 +1,6 @@
 (ns app.core
   (:require
+   [app.file :as file]
    [app.file-list :as file.list] 
    [uix.core :as uix :refer [$]]
    [uix.dom]))
@@ -8,7 +9,7 @@
   (uix.dom/create-root (js/document.getElementById "root")))
 
 (defn render []
-  (uix.dom/render-root ($ file.list/file-list) root))
+  (uix.dom/render-root #_($ file/file-viewer) ($ file.list/file-list) root))
 
 (defn ^:export init []
   (render))
