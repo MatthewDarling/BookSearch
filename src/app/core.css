@@ -1,6 +1,7 @@
 :root {
-    --color-accent: #266cf5;
+    --color-accent: #b9c5df;
     --color-text: #173878;
+    --light-bg: rgba(227, 227, 234, .41);
 }
 
 html {
@@ -10,6 +11,22 @@ html {
 html * {
     box-sizing: inherit;
 }
+
+h1, h2 {
+    
+    padding: 0;
+    color: var(--color-text);
+    font-weight: 100;
+}
+
+h1, h2, h3, h4, h5 {
+    margin: 0;   
+}
+
+h1 {
+    font-weight: 500;
+}
+
 
 body {
     margin: 0;
@@ -24,7 +41,7 @@ body {
     align-items: center;
     justify-content: center;
     width: 100vw;
-    height: 100vh;
+    height: 100%;
 }
 
 input {
@@ -37,19 +54,23 @@ a {
 }
 
 .app {
+    margin: 24px 0;
     display: flex;
     flex-direction: column;
-    width: 460px;
+    width: 90vw;
     background: #fafafa;
-    border-radius: 10px;
+    border-radius: 2px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     border: 2px solid var(--color-accent);
 }
 
 .app-header {
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    padding: 8px 0;
+    padding: 0px 0;
+    margin: auto;
+    text-align: center;;
 }
 
 .app-footer {
@@ -57,9 +78,11 @@ a {
     padding: 8px 0;
 }
 
-.text-input {
-    font-size: 18px;
-    padding: 8px 12px;
+.text-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 100%;
+    padding: 0px 12px;
     border-left: none;
     border-right: none;
     border-top: 2px solid var(--color-accent);
@@ -67,29 +90,48 @@ a {
     color: var(--color-text);
 }
 
-.todo-item {
-    border-bottom: 2px solid var(--color-accent);
+.text-input {
     font-size: 18px;
+    margin: 24px 0;
+    padding: 12px 12px;
+    border: 2px solid var(--color-accent);
+    color: var(--color-text);
+}
+
+.file {
+    border-bottom: 2px solid var(--color-accent);
     padding: 8px 12px;
-    background: rgba(0, 0, 255, 0.1);
+    background: #FFFFFF;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: left;
+    justify-content: space-between;
+    font-weight: 200;
+}
+
+.file-header {
+    display: flex;
+    padding: 2px 16px;
+    border-bottom: 2px solid var(--color-accent);
+    background: var(--light-bg);
+    border-radius: 4px 4px;
+    align-items: left;
     justify-content: space-between;
     font-weight: 500;
 }
 
-.todo-item-control {
+.file-control {
     width: 20px;
     height: 20px;
     margin: 0 12px 0 0;
 }
 
-.todo-item-text {
+.file-text {
     flex: 1;
     color: var(--color-text);
 }
 
-.todo-item-delete-button {
+.file-delete-button {
     border: none;
     background: transparent;
     font-size: 20px;
@@ -97,8 +139,8 @@ a {
     cursor: pointer;
 }
 
-.todo-item-text-field {
-    font-size: 18px;
+.file-text-field {
+    font-size: 11px;
     border: none;
     background: transparent;
     color: var(--color-text);
