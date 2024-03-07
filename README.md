@@ -23,3 +23,23 @@ Install Flyway: https://documentation.red-gate.com/fd/command-line-184127404.htm
 Apply the contents of sql/init.sql somehow (not yet automated)
 Apply migrations:
     flyway migrate
+
+
+## Make Directives
+
+## Install Prerequisite Extensions
+```
+make
+```
+
+### Create DB
+
+### Fill DB
+
+### Kill DB
+
+### Start from Scratch with new content
+```
+make kill_db DB_USER=thevermeer && make create_db DB_USER=thevermeer &&  make fill_db DB_USER=thevermeer
+```
+
