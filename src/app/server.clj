@@ -47,7 +47,6 @@
   args' when calling with curl."
   ([{{:strs [file_id]}
      :query-params :as request}]
-   (println request)
    (let [file-id (Integer/parseInt file_id)
          my-datasource (jdbc/get-datasource db-config)]
      (with-open [connection (jdbc/get-connection my-datasource)]
@@ -59,18 +58,25 @@
   ([request respond raise]
    (respond (retrieve-file-handler request))))
 
+(defn list-files-handler
+  ([{{:strs [query query_mode strategy]}
+     :query-params :as request}]
+   (let [my-datasource (jdbc/get-datasource db-config)]
+     (with-open [connection (jdbc/get-connection my-datasource)]
+       (response/response
+        (pr-str
+         (jdbc/execute! connection
+                        (sql/format (compile-search-query query
+                                                          query_mode
+                                                          strategy))))))))
+  ([request respond raise]
+   (respond (list-files-handler request))))
+
 (def router
   (ring/router
-    ["/api"
-     ["/file" {:get retrieve-file-handler}]
-     ["/list" {:get (fn [{{:strs [query query_mode strategy]}
-                          :query-params :as req}]
-                      (let [my-datasource (jdbc/get-datasource db-config)]
-                        (with-open [connection (jdbc/get-connection my-datasource)]
-                          (jdbc/execute! connection
-                                         (sql/format (compile-search-query query
-                                                                           query_mode
-                                                                           strategy))))))}]]))
+   ["/api"
+    ["/file" {:get retrieve-file-handler}]
+    ["/list" {:get list-files-handler}]]))
 
 (def app
   (ring/ring-handler
