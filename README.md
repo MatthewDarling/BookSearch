@@ -43,3 +43,15 @@ make
 make kill_db DB_USER=thevermeer && make create_db DB_USER=thevermeer &&  make fill_db DB_USER=thevermeer
 ```
 
+### Start a Clojure REPL for the server
+
+```
+clj -M:repl
+```
+
+### Manage the server
+
+``` clojure
+(-main) ;; to start the server
+(reset) ;; to update the server with new changes
+```

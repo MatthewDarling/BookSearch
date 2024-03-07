@@ -12,5 +12,5 @@
  :paths ["src"]
  :aliases {:dev {:extra-paths ["dev"]
                  :extra-deps {thheller/shadow-cljs {:mvn/version "2.25.8"}
-                              binaryage/devtools {:mvn/version "1.0.7"}}
-                 :main-opts ["-i" "src/app/server.clj" "-e" "(in-ns 'app.server)" "-r"]}}}
+                              binaryage/devtools {:mvn/version "1.0.7"}}}
+           :repl {:main-opts ["-i" "src/app/server.clj" "-e" "(in-ns 'app.server)" "-r"]}}}
