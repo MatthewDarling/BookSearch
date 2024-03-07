@@ -16,15 +16,17 @@
 
 ;; List Item ------------------------------------------------------------------
 (defui list-item
-  [{:keys [file_id content title author] :as props}]
-  ;; = Temp --
-  {:pre [(s/valid? :list/document props)]} 
+  [{:files/keys [file_id content title author]
+    :keys [headline]
+    :as props}]
+  ;; need to update the spec a bit
+  #_{:pre [(s/valid? :list/document props)]}
   ($ :.file
      ($ :div.file-header
         {:key file_id}
         ($ :h3 file_id ". " title)
         ($ :h4 author))
-     ($ :span.file-text content)))
+     ($ :span.file-text headline)))
 
 ;; File List ----------------------------------------------------------------
 (defui file-list []
@@ -32,18 +34,12 @@
         [files set-files!] (persistent.state/with-local-storage "booksearch/documents" [])
         on-search (fn [search-term]
                     (set-search-term! search-term)
-                    (api/make-remote-call (str "https://jsonplaceholder.typicode.com/posts/")
+                    (api/make-remote-call (str "http://localhost:3000/api/list?query=" search-term "&query_mode=phrase&strategy=ts_headline")
                                           (fn [response]
                                             (set-files! #(identity response)))))]
     ($ :.app
        ($ ui/header)
        ($ ui/text-field {:initial-value search
-                             :on-search on-search})
+                         :on-search on-search})
        (for [[id file] (map-indexed vector files)]
-         ($ list-item
-            ; - Temp --
-            (assoc (select-keys (clojure.set/rename-keys file {:body :content}) [:content :title])
-                   :author "C. Thomas Howell"
-                   :file_id id))))))
-
-
+         ($ list-item file)))))

@@ -11,17 +11,15 @@
 
 ;; Search Bar -----------------------------------------------------------------
 (defui text-field [{:keys [on-search initial-value]}]
-  (let [[value set-value!] (uix/use-state (js/parseInt initial-value))]
+  (let [[value set-value!] (uix/use-state initial-value)]
     ($ :div.text-input-wrapper
        ($ :input.text-input
-       ;; - temp ---
-          {:value (if (> value 0) value initial-value)
-           :type :number
+          {:value value
            :placeholder "Enter a search term"
            :on-change (fn [^js e]
                         (set-value! (.. e -target -value)))
            :on-key-down (fn [^js e]
                           (when (= "Enter" (.-key e))
-                            (on-search (if (> value 0) value initial-value))
+                            (on-search value)
                             (set-value! "")))}))))
 
