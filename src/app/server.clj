@@ -63,12 +63,17 @@
      :query-params :as request}]
    (let [my-datasource (jdbc/get-datasource db-config)]
      (with-open [connection (jdbc/get-connection my-datasource)]
-       (response/response
-        (pr-str
-         (jdbc/execute! connection
+       (let [result (jdbc/execute! connection
                         (sql/format (compile-search-query query
                                                           query_mode
-                                                          strategy))))))))
+                                                          strategy)))]
+         (-> result
+             pr-str
+             response/response
+             (response/header "Access-Control-Allow-Origin"
+                              "http://localhost:8080")
+             (response/header "Access-Control-Allow-Credentials"
+                              "true"))))))
   ([request respond raise]
    (respond (list-files-handler request))))
 
