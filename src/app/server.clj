@@ -35,7 +35,7 @@
          (#{"ts_headline" "ts_semantic_headline" "ts_fast_headline"} strategy)]}
   (if (= "ts_fast_headline" strategy)
     (compile-fast-search-query query query-mode)
-    {:select [:file_id :filename :title :author :content
+    {:select [:file_id :filename :title :author
               [[(keyword strategy) :content [(query-mode->query-fn query-mode) [:cast query :text]]]
                :headline]]
      :from [:files]
