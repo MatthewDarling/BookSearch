@@ -20,5 +20,8 @@ create_db:
 fill_db:
 	psql -U $(DB_USER) -v path="'$(shell pwd)/public_domain_texts'" -d booksearch -f ./sql/load_public_domain_texts.sql
 
+load_files:
+	bash load_files.sh
+
 kill_db:
 	psql -U $(DB_USER) -d postgres -f ./sql/testing_cleanup.sql
