@@ -3,10 +3,12 @@
    [app.api :as api]
    [app.persistent-state :as persistent.state]
    [app.ui :as ui] 
+   [cljs.reader]
    [cljs.spec.alpha :as s]
    [clojure.set]
    [uix.core :as uix :refer [defui $]]
    [uix.dom]))
+
 
 ;; Specs ----------------------------------------------------------------------
 (s/def :file/content string?)
@@ -17,16 +19,18 @@
 ;; List Item ------------------------------------------------------------------
 (defui list-item
   [{:files/keys [file_id content title author]
-    :keys [headline]
+    :keys [headline backup_headline]
     :as props}]
   ;; need to update the spec a bit
   #_{:pre [(s/valid? :list/document props)]}
-  ($ :.file
+  
+  ($ :.file 
      ($ :div.file-header
         {:key file_id}
         ($ :h3 file_id ". " title)
         ($ :h4 author))
-     ($ :span.file-text headline)))
+     ($ :span.file-text {:dangerouslySetInnerHTML  {:__html headline}})
+     ($ :div backup_headline)))
 
 ;; File List ----------------------------------------------------------------
 (defui file-list []
@@ -34,12 +38,14 @@
         [files set-files!] (persistent.state/with-local-storage "booksearch/documents" [])
         on-search (fn [search-term]
                     (set-search-term! search-term)
-                    (api/make-remote-call (str "http://localhost:3000/api/list?query=" search-term "&query_mode=phrase&strategy=ts_headline")
-                                          (fn [response]
-                                            (set-files! #(identity response)))))]
+                    (api/make-remote-call (str "http://localhost:3000/api/list?query=" 
+                                               search-term 
+                                               "&query_mode=phrase&strategy=ts_fast_headline")
+                                          (fn [response] 
+                                            (set-files! #(cljs.reader/read-string response)))))]
     ($ :.app
        ($ ui/header)
        ($ ui/text-field {:initial-value search
-                         :on-search on-search})
-       (for [[id file] (map-indexed vector files)]
+                         :on-search on-search}) 
+       (for [file files]
          ($ list-item file)))))

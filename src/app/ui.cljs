@@ -20,6 +20,5 @@
                         (set-value! (.. e -target -value)))
            :on-key-down (fn [^js e]
                           (when (= "Enter" (.-key e))
-                            (on-search value)
-                            (set-value! "")))}))))
+                            (on-search value)))}))))
 

@@ -15,6 +15,12 @@
                 :user "booksearch"
                 :password "bookitysearch"})
 
+(defn query-mode->tsp-query-fn
+  [query-mode]
+  (if (= "phrase" query-mode)
+    :phraseto_tspquery
+    :to_tspquery))
+
 (defn query-mode->query-fn
   [query-mode]
   (if (= "phrase" query-mode)
@@ -24,10 +30,20 @@
 (defn compile-fast-search-query
   [query query-mode]
   {:pre [(#{"phrase" "logical"} query-mode)]}
-  {:select [:file_id :filename :title :author :content]
-   :from [:files]
-   ;;; TODO handle calling format differences for fast headline
-   :where [:ts_fast_headline :content [:to_tsquery]]})
+  {:select [:files.file_id :filename :title :author
+            [[:ts_fast_headline
+              :content_array
+              :content_tsv
+              [(query-mode->tsp-query-fn query-mode) [:cast query :text]]
+              "DisableSemantics=TRUE"]
+             :headline]
+            [[:ts_headline
+              :content
+              [(query-mode->query-fn query-mode) [:cast query :text]]]
+             :backup_headline]]
+   :from [:file_lookup_16k]
+   :left-join [:files [:= :files.file_id :file_lookup_16k.file_id]]
+   :where [(keyword "@@") :content_tsv [(query-mode->tsp-query-fn query-mode) query]]})
 
 (defn compile-search-query
   [query query-mode strategy]
@@ -36,7 +52,10 @@
   (if (= "ts_fast_headline" strategy)
     (compile-fast-search-query query query-mode)
     {:select [:file_id :filename :title :author
-              [[(keyword strategy) :content [(query-mode->query-fn query-mode) [:cast query :text]]]
+              [[(keyword strategy) 
+                :content 
+                [(query-mode->query-fn query-mode) [:cast query :text]]
+                "MaxFragments=5"]
                :headline]]
      :from [:files]
      :where [(keyword "@@") :content [(query-mode->query-fn query-mode) query]]}))
