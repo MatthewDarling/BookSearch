@@ -10,5 +10,8 @@
 ;; API Request ----------------------------------------------------------------
 (defn make-remote-call [endpoint callback]
   (go (let [response (<! (http/get endpoint))]
-        (callback (-> response
-                      :body)))))
+        (try 
+          (callback (-> response
+                            :body))
+          (catch js/Error e 
+            (js/console.log "error" e))))))

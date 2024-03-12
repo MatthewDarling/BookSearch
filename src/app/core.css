@@ -4,6 +4,7 @@
     --light-bg: #f6f6f6;
     --app-bg: #fafafa;
     --light-text: #369;
+    --error-text: rgb(208, 51, 51);
 }
 
 html {
@@ -132,6 +133,12 @@ a {
 .file-text {
     flex: 1;
     color: var(--color-text);
+    padding: 8px 16px 4px 16px;
+}
+
+.error {
+    flex: 1;
+    color: var(--error-text);
     padding: 8px 16px 4px 16px;
 }
 

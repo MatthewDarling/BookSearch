@@ -36,11 +36,7 @@
               :content_tsv
               [(query-mode->tsp-query-fn query-mode) [:cast query :text]]
               "DisableSemantics=TRUE"]
-             :headline]
-            [[:ts_headline
-              :content
-              [(query-mode->query-fn query-mode) [:cast query :text]]]
-             :backup_headline]]
+             :headline]]
    :from [:file_lookup_16k]
    :left-join [:files [:= :files.file_id :file_lookup_16k.file_id]]
    :where [(keyword "@@") :content_tsv [(query-mode->tsp-query-fn query-mode) query]]})
@@ -82,17 +78,28 @@
      :query-params :as request}]
    (let [my-datasource (jdbc/get-datasource db-config)]
      (with-open [connection (jdbc/get-connection my-datasource)]
-       (let [result (jdbc/execute! connection
-                        (sql/format (compile-search-query query
-                                                          query_mode
-                                                          strategy)))]
-         (-> result
-             pr-str
-             response/response
-             (response/header "Access-Control-Allow-Origin"
-                              "http://localhost:8080")
-             (response/header "Access-Control-Allow-Credentials"
-                              "true"))))))
+       (try 
+         (let [result (jdbc/execute! connection
+                                     (sql/format (compile-search-query query
+                                                                       query_mode
+                                                                       strategy)))]
+           (-> result
+               pr-str
+               response/response
+               (response/header "Access-Control-Allow-Origin"
+                                "http://localhost:8080")
+               (response/header "Access-Control-Allow-Credentials"
+                                "true")))
+         (catch Exception e 
+           (-> {:error (.toString e)}
+               pr-str
+               response/response
+               (response/status 401)
+               (response/header "Access-Control-Allow-Origin"
+                                "http://localhost:8080")
+               (response/header "Access-Control-Allow-Credentials"
+                                "true"))
+           )))))
   ([request respond raise]
    (respond (list-files-handler request))))
 
