@@ -48,6 +48,7 @@
                                                     "&query_mode=phrase&strategy="
                                                     strategy-key)
                                                (fn [response]
+                                                 (js/console.log response)
                                                  (let [parsed-response (cljs.reader/read-string response)]
                                                    (if (:error parsed-response)
                                                      (do (set-state! (fn [s] (assoc s 
@@ -87,4 +88,4 @@
        (when (:error state)
              ($ :.error
                 ($ :h3 "Uh-oh! There was an error!")
-                (:error state))))))
+                (str (:error state)))))))

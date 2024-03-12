@@ -30,16 +30,21 @@
 (defn compile-fast-search-query
   [query query-mode]
   {:pre [(#{"phrase" "logical"} query-mode)]}
-  {:select [:files.file_id :filename :title :author
-            [[:ts_fast_headline
-              :content_array
-              :content_tsv
-              [(query-mode->tsp-query-fn query-mode) [:cast query :text]]
-              "DisableSemantics=TRUE"]
-             :headline]]
-   :from [:file_lookup_16k]
-   :left-join [:files [:= :files.file_id :file_lookup_16k.file_id]]
-   :where [(keyword "@@") :content_tsv [(query-mode->tsp-query-fn query-mode) query]]})
+  {:select [:files.file_id
+            :filename
+            :title
+            :author
+            [[:tsp_present_text [:array_to_string [:slice_array [:array_agg :headline/headline] 1 5] " ... "]] :headline]]
+   :from [:files]
+   :left-join [[:file_lookup_16k :fl] [:= :fl/file_id :files/file_id]
+               [[:ts_fast_headline_cover_density
+                 [:cast "english" :regconfig]
+                 :content_array
+                 :content_tsv
+                 [:phraseto_tspquery [:cast query :text]]] :headline] [true]]
+   :where [(keyword "@@") :content_tsv [(query-mode->tsp-query-fn query-mode) query]]
+   :group-by [:files.file_id]
+   :order-by [:files.file_id]})
 
 (defn compile-search-query
   [query query-mode strategy]
