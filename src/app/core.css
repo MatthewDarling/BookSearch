@@ -22,7 +22,7 @@ h1, h2 {
 
 }
 
- h4, h5 {
+h4, h5 {
     padding: 0;
     color: var(--light-text);
     font-weight: 100;
@@ -84,9 +84,8 @@ a {
     text-align: center;;
 }
 
-.text-input-wrapper {
+.input-wrapper {
     display: flex;
-    flex-direction: column;
     flex: 1 1 100%;
     padding: 0px 12px;
     background: var(--light-bg);
@@ -100,12 +99,33 @@ a {
     z-index: 2;
 }
 
-.text-input {
+.strategy, .stats {
+    display: flex;
+    flex: 0 0 300px;
+    position: sticky;
+    top: 100px;
+    margin: auto;   
+    padding: 2px 0;
+}
+
+.stats { 
+    margin: auto 0 auto auto;
+    width: 180px;
+}
+
+.text-input-wrapper {
+    flex: 1 1 50%;
+    width: 100%;
+}
+
+.text-input {   
+    flex: 1 1 50%;
     font-size: 18px;
     margin: 24px 0;
     padding: 12px 12px;
     border: 2px solid var(--color-accent);
     color: var(--color-text);
+    width: 100%;
 }
 
 .file {
@@ -142,4 +162,30 @@ a {
     padding: 8px 16px 4px 16px;
 }
 
+.loading {
+    animation-name: color;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
 
+    flex: 1;
+    background: var(--light-text);
+    padding: 12px;
+    margin: 12px auto;
+    width: 90%;
+    text-align:center;
+    color: #fff;
+}
+
+
+
+@keyframes color {
+    0% {
+        background-color: var(--light-text);
+    }
+    50% {
+        background-color: #000000;
+    }
+    100% {
+        background-color: var(--light-text);
+    }
+}

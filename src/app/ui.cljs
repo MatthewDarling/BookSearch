@@ -1,5 +1,6 @@
 (ns app.ui
-  (:require 
+  (:require
+   [clojure.string]
    [uix.core :as uix :refer [defui $]]
    [uix.dom]))
 
@@ -21,4 +22,33 @@
            :on-key-down (fn [^js e]
                           (when (= "Enter" (.-key e))
                             (on-search value)))}))))
+
+(defui strategy-radio
+  [{:keys [strategy value on-set-strategy]}]
+  ($ :<>
+     ($ :input
+        {:type :radio
+         :name :rad-strategy
+         :on-change (fn [^js e]
+                      (on-set-strategy (.. e -target -value)))
+         :value value
+         :checked (= strategy value)})
+     ($ :label {:for value} value)))
+
+
+(defui strategy-radio-options [{:keys [strategy on-set-strategy]}]
+  (let [strategy (cond-> strategy (keyword? strategy) name)]
+    ($ :div.strategy
+       ($ strategy-radio
+          {:value "ts_fast_headline"
+           :on-set-strategy on-set-strategy
+           :strategy strategy}) 
+       ($ strategy-radio
+          {:value "ts_semantic_headline"
+           :on-set-strategy on-set-strategy
+           :strategy strategy}) 
+       ($ strategy-radio
+          {:value "ts_headline"
+           :on-set-strategy on-set-strategy
+           :strategy strategy}))))
 
