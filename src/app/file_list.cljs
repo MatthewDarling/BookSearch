@@ -3,9 +3,11 @@
    [app.api :as api]
    [app.persistent-state :as persistent.state]
    [app.ui :as ui]
+   [cljs.core.async :refer [go]]
    [cljs.reader]
    [cljs.spec.alpha :as s]
    [clojure.set]
+
    [uix.core :as uix :refer [defui $]]
    [uix.dom]))
 
@@ -36,7 +38,7 @@
 (defui file-list []
   (let [[search set-search-term!] (persistent.state/with-local-storage "booksearch/search-history" "")
         [files set-files!] (persistent.state/with-local-storage "booksearch/documents" [])
-        [strategy set-strategy!] (persistent.state/with-local-storage "booksearch/strategy" "ts_fast_headline") 
+        [strategy set-strategy!] (persistent.state/with-local-storage "booksearch/strategy" "ts_fast_headline")
         [state set-state!] (uix/use-state {:loading false
                                            :error   nil})
 
@@ -47,12 +49,11 @@
                                                     search-term
                                                     "&query_mode=phrase&strategy="
                                                     strategy-key)
-                                               (fn [response]
-                                                 (js/console.log response)
+                                               (fn [response] 
                                                  (let [parsed-response (cljs.reader/read-string response)]
                                                    (if (:error parsed-response)
-                                                     (do (set-state! (fn [s] (assoc s 
-                                                                                    :error parsed-response 
+                                                     (do (set-state! (fn [s] (assoc s
+                                                                                    :error parsed-response
                                                                                     :loading false
                                                                                     :time-end (js/Date.now))))
                                                          (set-files! (fn [_]  [])))
@@ -66,26 +67,43 @@
                     (perform-search search-term strategy))
         on-set-strategy (fn [strategy]
                           (set-strategy! strategy)
-                          (perform-search search strategy))]
+                          (perform-search search strategy))
+        _ (go (when-let [counter-elem (js/document.getElementById "loading-counter")]
+                (js/setInterval #(when (:loading state)
+                                   (let [current-time (- (js/Date.) (:time-start state))]
+                                     (set! (.-innerHTML counter-elem) (str current-time "ms"))))
+                                1)))]
     ($ :.app
        ($ ui/header)
-       ($ :.input-wrapper 
+       ($ :.input-wrapper
           ($ ui/text-field {:initial-value search
                             :on-search on-search})
           ($ ui/strategy-radio-options {:on-set-strategy on-set-strategy
                                         :strategy strategy})
-          (when (> (- (:time-end state) (:time-start state)) 0)
-            ($ :.stats "Time to query: "
-               (- (:time-end state) (:time-start state))
-               "ms")))
-       
-       (when (:loading state) ($ :.loading "Loading"))
-       
+
+          ($ :.stats "Time to query: "
+             (if (> (- (:time-end state) (:time-start state)) 0)
+               ($ :.elapsed (- (:time-end state) (:time-start state)) "ms")
+               "-")))
+
+       (when (:loading state)
+         ($ :.loading
+            "Loading "
+            ($ :.loading-book
+               ($ :span.page.turn)
+               ($ :span.page.turn)
+               ($ :span.page.turn)
+               ($ :span.page.turn)
+               ($ :span.cover)
+               ($ :span.page)
+               ($ :span.cover.turn))
+            ($ :#loading-counter)))
+
 
        (for [file files]
          ($ list-item file))
 
        (when (:error state)
-             ($ :.error
-                ($ :h3 "Uh-oh! There was an error!")
-                (str (:error state)))))))
+         ($ :.error
+            ($ :h3 "Uh-oh! There was an error!")
+            (str (:error state)))))))

@@ -6,7 +6,7 @@
 
 ;; Header ---------------------------------------------------------------------
 (defui header []
-  ($ :header.app-header
+  ($ :header.app-header 
      ($ :h1 "Book Search")
      ($ :h2 "Demonstration of Full-Text Search on Large Texts")))
 
@@ -42,11 +42,11 @@
        ($ strategy-radio
           {:value "ts_fast_headline"
            :on-set-strategy on-set-strategy
-           :strategy strategy}) 
+           :strategy strategy})
        ($ strategy-radio
           {:value "ts_semantic_headline"
            :on-set-strategy on-set-strategy
-           :strategy strategy}) 
+           :strategy strategy})
        ($ strategy-radio
           {:value "ts_headline"
            :on-set-strategy on-set-strategy
