@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS file_lookup_16k
-(file_id INTEGER REFERENCES files(file_id),
+(file_id INTEGER REFERENCES files(file_id) ON DELETE CASCADE,
  sequence_no INTEGER,
  content_array TEXT[] NOT NULL,
  content_tsv TSPVECTOR);
