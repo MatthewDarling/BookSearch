@@ -11,12 +11,15 @@
   [store-key initial-value]
   (let [[value set-value!] (uix/use-state initial-value)]
     (uix/use-effect
-     (fn []
-       (let [v (edn/read-string (js/localStorage.getItem store-key))]
+     (fn [] 
+       (let [v (edn/read-string (js/localStorage.getItem store-key))] 
          (set-value! #(identity v))))
      [store-key])
     (uix/use-effect
-     (fn []
-       (js/localStorage.setItem store-key (str value)))
+     (fn [] 
+       (if (string? value) 
+         (js/localStorage.setItem store-key (str \" value \"))
+         (js/localStorage.setItem store-key (str value))))
      [value store-key])
     [value set-value!]))
+
