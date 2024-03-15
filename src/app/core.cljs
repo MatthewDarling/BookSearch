@@ -31,24 +31,19 @@
    {:data {:controllers [{:start (log-fn "start" "root-controller")
                           :stop (log-fn "stop" "root controller")}]}}))
 
-;; The use of this atom is allows us to cross the barrier where we
-;; can apply the router to UIX state in the rfe/start! call, have actual 
-;; reactive state, but not devolve into an infinite rendering loop
-;; I am not sure what is intended here in UIX - ???!!!
-(def initialized (atom false))
-
 (defui current-page []
-  (let [[match set-match!] (ui/use-state nil)]
-    (when-not @initialized
-      (rfe/start!
-       routes
-       (fn [new-match]
-         (reset! initialized true)
-         (set-match! (fn [old-match]
-                       (when new-match
-                         (assoc new-match :controllers (rfc/apply-controllers (:controllers old-match) new-match))))))
-       {:use-fragment true}))
-    
+  (let [[match set-match!] (ui/use-state nil)
+        _ (ui/use-effect
+           (fn [] (rfe/start!
+                   routes
+                   (fn [new-match] 
+                     (set-match! (fn [old-match]
+                                   (when new-match
+                                     (assoc new-match 
+                                            :controllers
+                                            (rfc/apply-controllers (:controllers old-match) 
+                                                                   new-match))))))
+                   {:use-fragment true})))] 
     (when match
       (let [view (:view (:data match))]
         ($ view {:route match
