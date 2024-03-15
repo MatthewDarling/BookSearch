@@ -75,7 +75,9 @@
         ($ :button {:on-click (partial click-handler (partial * 1))
                                   :disabled (= result-no -1)} "RELOCATE")
         ($ :button {:on-click (partial click-handler inc)
-                                  :disabled (>= result-no (- (.-length class-list) 1))} "NEXT")))))
+                                  :disabled (>= result-no (- (.-length class-list) 1))} "NEXT"))
+       ($ :hr)
+       ($ :a {:href "#"} "<< Back to search"))))
 
 ;; File Viewer ----------------------------------------------------------------
 (defui file-viewer [{:keys [route]}]
