@@ -58,8 +58,16 @@
                 [(query-mode->query-fn query-mode) [:cast query :text]]
                 "MaxFragments=5"]
                :headline]]
-     :from [:files]
-     :where [(keyword "@@") :content [(query-mode->query-fn query-mode) query]]}))
+     :from [:files] 
+     :where [:in :file_id {:select [[[:distinct :file_id]] ] :from [:file_lookup_16k] 
+              :where [(keyword "@@") :content_tsv [(query-mode->query-fn query-mode) query]]}]}))
+
+(defn add-cors-headers [resp]
+  (-> resp 
+      (response/header "Access-Control-Allow-Origin"
+                       "http://localhost:8080")
+      (response/header "Access-Control-Allow-Credentials"
+                       "true")))
 
 (defn retrieve-file-handler
   "Async and sync compatible handler. Most example online show only a synchronous
@@ -70,11 +78,14 @@
    (let [file-id (Integer/parseInt file_id)
          my-datasource (jdbc/get-datasource db-config)]
      (with-open [connection (jdbc/get-connection my-datasource)]
-       (response/response
-        (pr-str (jdbc/execute! connection
-                               (sql/format {:select [:filename :title :author :content]
-                                            :from   [:files]
-                                            :where  [:= :files.file_id file-id]})))))))
+       (->> {:select [:filename :title :author :content]
+             :from   [:files]
+             :where  [:= :files.file_id file-id]}
+            sql/format 
+            (jdbc/execute! connection)
+            pr-str
+            response/response
+            add-cors-headers))))
   ([request respond raise]
    (respond (retrieve-file-handler request))))
 
@@ -83,36 +94,60 @@
      :query-params :as request}]
    (let [my-datasource (jdbc/get-datasource db-config)]
      (with-open [connection (jdbc/get-connection my-datasource)]
-       (try 
-         (let [result (jdbc/execute! connection
-                                     (sql/format (compile-search-query query
-                                                                       query_mode
-                                                                       strategy)))]
+       (try
+         (let [result (->> (compile-search-query query
+                                                 query_mode
+                                                 strategy)
+                           sql/format
+                           (jdbc/execute! connection))]
            (-> result
                pr-str
                response/response
-               (response/header "Access-Control-Allow-Origin"
-                                "http://localhost:8080")
-               (response/header "Access-Control-Allow-Credentials"
-                                "true")))
-         (catch Exception e 
+               add-cors-headers))
+         (catch Exception e
            (-> {:error (.toString e)}
                pr-str
                response/response
                (response/status 401)
-               (response/header "Access-Control-Allow-Origin"
-                                "http://localhost:8080")
-               (response/header "Access-Control-Allow-Credentials"
-                                "true"))
-           )))))
+               add-cors-headers))))))
   ([request respond raise]
    (respond (list-files-handler request))))
+
+(defn compile-file-search-query
+  ([{{:strs [query query_mode file_id]}
+     :query-params :as request}]
+   {:pre [(#{"phrase" "logical"} query_mode)]}
+
+   (let [file-id (Integer/parseInt file_id)
+         my-datasource (jdbc/get-datasource db-config)]
+     (with-open [connection (jdbc/get-connection my-datasource)]
+       (->> {:select [[[:tsp_present_text :headline.words] :term]]
+             :from [:files]
+             :left-join [[:file_lookup_16k :fl] [:= :fl/file_id :files/file_id]
+                         [[:tsp_query_matches
+                           [:cast "english" :regconfig]
+                           :content_array
+                           :content_tsv
+                           [:phraseto_tspquery [:cast query :text]]
+                           [:cast 50 :integer]] :headline] [true]]
+             :where [:and
+                     [:= :files/file_id file-id]
+                     [(keyword "@@") :content_tsv [(query-mode->tsp-query-fn query_mode) query]]]}
+            sql/format
+            (jdbc/execute! connection)
+            pr-str
+            response/response
+            add-cors-headers))))
+  ([request respond raise]
+   (respond (compile-file-search-query request))))
 
 (def router
   (ring/router
    ["/api"
+    ["/list" {:get list-files-handler}]
     ["/file" {:get retrieve-file-handler}]
-    ["/list" {:get list-files-handler}]]))
+    ["/search" {:get compile-file-search-query}]
+    ]))
 
 (def app
   (ring/ring-handler
@@ -144,7 +179,8 @@
   (-main))
 
 (comment
-  (-main)
+  (-main) 
   (app {:request-method :get, :uri "/api/file?file_id=26"})
+
   (stop)
   (reset))

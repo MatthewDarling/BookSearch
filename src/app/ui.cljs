@@ -6,16 +6,16 @@
 
 ;; Header ---------------------------------------------------------------------
 (defui header []
-  ($ :header.app-header 
+  ($ :header.app-header.chapter-title 
      ($ :h1 "Book Search")
      ($ :h2 "Demonstration of Full-Text Search on Large Texts")))
 
 ;; Search Bar -----------------------------------------------------------------
 (defui text-field [{:keys [on-search initial-value]}]
   (let [[value set-value!] (uix/use-state initial-value)]
-    ($ :div.text-input-wrapper
+    ($ :div.text-input-wrapper 
        ($ :input.text-input
-          {:value value
+          {:value (if (= value "") initial-value value)
            :placeholder "Enter a search term"
            :on-change (fn [^js e]
                         (set-value! (.. e -target -value)))
@@ -52,3 +52,23 @@
            :on-set-strategy on-set-strategy
            :strategy strategy}))))
 
+(defn loading-bar [_]
+  ($ :.loading
+     "Loading "
+     ($ :.loading-book
+        ($ :span.page.turn)
+        ($ :span.page.turn)
+        ($ :span.page.turn)
+        ($ :span.page.turn)
+        ($ :span.cover)
+        ($ :span.page)
+        ($ :span.cover.turn))
+     
+     ($ :#loading-counter)))
+
+
+(defui query-stats [{:keys [time-start time-end]}]
+  ($ :.stats "Time to query: "
+     (if (> (- time-end time-start) 0)
+       ($ :.elapsed (- time-end time-start) "ms")
+       "-")))
