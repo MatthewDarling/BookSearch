@@ -15,7 +15,7 @@
   (let [[value set-value!] (uix/use-state initial-value)]
     ($ :div.text-input-wrapper 
        ($ :input.text-input
-          {:value (if (= value "") initial-value value)
+          {:value value
            :placeholder "Enter a search term"
            :on-change (fn [^js e]
                         (set-value! (.. e -target -value)))

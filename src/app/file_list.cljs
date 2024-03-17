@@ -79,6 +79,8 @@
         (persistent.state/with-local-storage "booksearch/search-history" "") 
         [strategy set-strategy!]
         (persistent.state/with-local-storage "booksearch/strategy" "ts_fast_headline")
+        [mode set-mode!]
+        (persistent.state/with-local-storage "booksearch/mode" "phrase")
         [state set-state!]
         (uix/use-state {:loading false :error   nil})]
     (uix/use-effect
@@ -89,10 +91,10 @@
                                   :time-start (js/Date.now))))
        (api/make-remote-call (str "http://localhost:3000/api/list?query="
                                   (js/encodeURIComponent search)
-                                  "&query_mode=phrase&strategy="
-                                  strategy)
+                                  "&query_mode=" mode
+                                  "&strategy=" strategy)
                              (search-handler set-state!)))
-     [search strategy])
+     [search strategy mode])
     ($ :.app
        ($ ui/header)
        ($ :.input-wrapper
