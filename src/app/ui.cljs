@@ -72,3 +72,11 @@
      (if (> (- time-end time-start) 0)
        ($ :.elapsed (- time-end time-start) "ms")
        "-")))
+
+(defui file-header
+  "Ui Component to convert a plain text (large) blob of text into HTML"
+  [{:files/keys [file_id title author]}]
+  ($ :header
+     {:key (keyword file_id) :class "file-title"}
+     ($ :h3 title)
+     ($ :h4 author)))
