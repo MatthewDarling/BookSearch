@@ -32,18 +32,21 @@
                           :stop (log-fn "stop" "root controller")}]}}))
 
 (defui current-page []
-  (let [[match set-match!] (ui/use-state nil)
-        _ (ui/use-effect
-           (fn [] (rfe/start!
-                   routes
-                   (fn [new-match] 
-                     (set-match! (fn [old-match]
-                                   (when new-match
-                                     (assoc new-match 
-                                            :controllers
-                                            (rfc/apply-controllers (:controllers old-match) 
-                                                                   new-match))))))
-                   {:use-fragment true})))] 
+  (let [[match set-match!] (ui/use-state nil)]
+    (ui/use-effect
+     (fn []
+       (when-not match 
+         (rfe/start!
+          routes
+          (fn [new-match]
+            (set-match!
+             (fn [old-match]
+               (when new-match
+                 (assoc new-match
+                        :controllers
+                        (rfc/apply-controllers (:controllers old-match)
+                                               new-match))))))
+          {:use-fragment true}))))
     (when match
       (let [view (:view (:data match))]
         ($ view {:route match
