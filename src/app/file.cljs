@@ -189,17 +189,19 @@
      [search mode id])
     ;; User Interface
     (if file
-      ($ :div.file-profile
-         (when error
-           ($ :dialog.file-error {:open true} error))
-         ($ search-results-list (assoc file
-                                       :loading loading
-                                       :toggle-loading toggle-loading
-                                       :search-results search-results
-                                       :mode mode
-                                       :set-mode set-mode!
-                                       :search search
-                                       :set-search-term set-search-term!))
-         ($ file-contents (assoc file
-                                 :search-results search-results)))
+      ($ :<>
+         ($ search-results-list
+            (assoc file
+                   :loading loading
+                   :toggle-loading toggle-loading
+                   :search-results search-results
+                   :mode mode
+                   :set-mode set-mode!
+                   :search search
+                   :set-search-term set-search-term!))
+         ($ :div.file-profile
+            (when error
+              ($ :dialog.file-error {:open true} error))
+            ($ file-contents (assoc file
+                                    :search-results search-results))))
       ($ :div {:style {:width "100vw"}} ($ ui/loading-bar)))))

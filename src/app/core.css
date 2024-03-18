@@ -59,6 +59,11 @@ body {
     height: 100%;
 }
 
+#root {
+  width: 100%;
+  padding: 48px;
+}
+
 input {
     font-family: 'Inter', sans-serif;
 }
@@ -105,7 +110,6 @@ label {
 .strategy, .stats, .mode {
     display: flex;
     flex: 0 1 200px;
-    position: sticky;
     top: 40;
     margin: auto;   
     padding: 2px 24px 2px 24px;
@@ -216,10 +220,6 @@ label {
     padding: 12px 0; 
 }
 
-.file-profile {
-    width: 50vw;
-}
-
 .search-result {
     font-size: 14px;
     font-weight: 700;  
@@ -239,7 +239,6 @@ label {
         color: #fff;
     }
 }
-
 
 /*** OPEN BOOK ***/
 .open-book {
