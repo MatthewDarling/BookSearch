@@ -66,6 +66,23 @@
       (response/header "Access-Control-Allow-Credentials"
                        "true")))
 
+(defn error->response
+  [error]
+  (-> {:error (.toString error)}
+      pr-str
+      response/response
+      (response/status 500)
+      add-cors-headers))
+
+(defn query->response
+  [connection query-map]
+  (->> query-map
+       sql/format
+       (jdbc/execute! connection)
+       pr-str
+       response/response
+       add-cors-headers))
+
 ;; Responses ------------------------------------------------------------------
 (defn file-contents-handler
   "Async and sync compatible handler. Most example online show only a synchronous
@@ -75,14 +92,10 @@
    (let [file-id (Integer/parseInt file_id)
          my-datasource (jdbc/get-datasource db-config)]
      (with-open [connection (jdbc/get-connection my-datasource)]
-       (->> {:select [:filename :title :author :content]
-             :from   [:files]
-             :where  [:= :files.file_id file-id]}
-            sql/format 
-            (jdbc/execute! connection)
-            pr-str
-            response/response
-            add-cors-headers))))
+       (query->response connection
+                        {:select [:filename :title :author :content]
+                         :from   [:files]
+                         :where  [:= :files.file_id file-id]}))))
   ([request respond raise]
    (respond (file-contents-handler request))))
 
@@ -90,58 +103,39 @@
   ([{{:strs [query query_mode strategy]} :query-params}]
    (let [my-datasource (jdbc/get-datasource db-config)]
      (with-open [connection (jdbc/get-connection my-datasource)]
-       (try
-         (let [query (codec/form-decode query)
-               result (->> (compile-search-query query
-                                                 query_mode
-                                                 strategy)
-                           sql/format
-                           (jdbc/execute! connection))]
-           (-> result
-               pr-str
-               response/response
-               add-cors-headers))
+       (try 
+         (query->response connection
+                          (compile-search-query (codec/form-decode query)
+                                                query_mode
+                                                strategy))
          (catch Exception e
-           (-> {:error (.toString e)}
-               pr-str
-               response/response
-               (response/status 500)
-               add-cors-headers))))))
+           (error->response e))))))
   ([request respond raise]
    (respond (list-files-handler request))))
 
 (defn file-search-handler
-  ([{{:strs [query query_mode file_id]}
-     :query-params}]
+  ([{{:strs [query query_mode file_id]} :query-params}]
    {:pre [(#{"phrase" "logical"} query_mode)]}
    (let [query (codec/form-decode query)
          file-id (Integer/parseInt file_id)
          my-datasource (jdbc/get-datasource db-config)]
      (with-open [connection (jdbc/get-connection my-datasource)]
-       (try 
+       (try
          (->> {:select [[[:tsp_present_text :headline.words] :term]]
-             :from [:files]
-             :left-join [[:file_lookup_16k :fl] [:= :fl/file_id :files/file_id]
-                         [[:tsp_query_matches
-                           [:cast "english" :regconfig]
-                           :content_array
-                           :content_tsv
-                           [(query-mode->tsp-query-fn query_mode) [:cast query :text]]
-                           [:cast 50 :integer]] :headline] [true]]
-             :where [:and
-                     [:= :files/file_id file-id]
-                     [(keyword "@@") :content_tsv [(query-mode->tsp-query-fn query_mode) query]]]}
-            sql/format
-            (jdbc/execute! connection)
-            pr-str
-            response/response
-            add-cors-headers)
+               :from [:files]
+               :left-join [[:file_lookup_16k :fl] [:= :fl/file_id :files/file_id]
+                           [[:tsp_query_matches
+                             [:cast "english" :regconfig]
+                             :content_array
+                             :content_tsv
+                             [(query-mode->tsp-query-fn query_mode) [:cast query :text]]
+                             [:cast 50 :integer]] :headline] [true]]
+               :where [:and
+                       [:= :files/file_id file-id]
+                       [(keyword "@@") :content_tsv [(query-mode->tsp-query-fn query_mode) query]]]}
+              (query->response connection))
          (catch Exception e
-           (-> {:error (.toString e)}
-               pr-str
-               response/response
-               (response/status 500)
-               add-cors-headers))))))
+           (error->response e))))))
   ([request respond raise]
    (respond (file-search-handler request))))
 
