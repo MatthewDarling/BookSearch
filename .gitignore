@@ -23,3 +23,8 @@ node_modules/
 .calva
 .clj-kondo/com.pitch/
 public_domain_texts/*.txt
+.DS_Store
+.clj-kondo/com.github.seancorfield/
+.clj-kondo/metosin/
+TEMP/
+public_domain_texts/.DS_Store
