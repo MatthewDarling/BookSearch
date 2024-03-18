@@ -2,7 +2,8 @@ CREATE TABLE IF NOT EXISTS file_lookup_16k
 (file_id INTEGER REFERENCES files(file_id) ON DELETE CASCADE,
  sequence_no INTEGER,
  content_array TEXT[] NOT NULL,
- content_tsv TSPVECTOR);
+ content_tsv TSPVECTOR,
+ content TEXT);
 
  -- Separate long strings into smaller tsvectors
 -- Need to avoid all of these issues: 
@@ -15,8 +16,8 @@ DECLARE num_spaces INT;
 BEGIN
   DELETE FROM file_lookup_16k WHERE file_id = NEW.file_id;
 
-  INSERT INTO file_lookup_16k (file_id, sequence_no, content_tsv, content_array)
-  SELECT file_id, ROW_NUMBER() OVER (), to_tspvector(content), TO_TSP_TEXT_ARRAY(content)
+  INSERT INTO file_lookup_16k (file_id, sequence_no, content_tsv, content_array, content)
+  SELECT file_id, ROW_NUMBER() OVER (), to_tspvector(content), TO_TSP_TEXT_ARRAY(content), content
     FROM (SELECT NEW.file_id, LARGE_TEXT_TO_TSVECTORS('english', NEW.content) as content) AS frags
    WHERE content IS NOT NULL;
 
