@@ -20,7 +20,7 @@
                                     :files/author]
                               :req-un [:files/headline]))
 
-(defn search-handler 
+(defn search-handler
   "Generates a response handler function for file list search.
    Accepts:
    - set-files! - a function to update a new file list into
@@ -28,18 +28,20 @@
                   state, and the time-start/end of the request."
   [set-state!]
   (fn [response]
-    (let [parsed-response (cljs.reader/read-string response)]
-      (if (:error parsed-response)
-        (set-state! (fn [s] (assoc s
-                                   :error parsed-response
-                                   :loading false
-                                   :files []
-                                   :time-end (js/Date.now))))
-        (set-state! (fn [s] (assoc s
-                                   :error nil
-                                   :loading false
-                                   :files parsed-response
-                                   :time-end (js/Date.now))))))))
+    (let [resp (cljs.reader/read-string (:body response))]
+     (if (:error resp)
+      (set-state!
+       (fn [s] (assoc s
+                      :error (:error resp)
+                      :loading false
+                      :files []
+                      :time-end (js/Date.now))))
+      (set-state!
+       (fn [s] (assoc s
+                      :error nil
+                      :loading false
+                      :files resp
+                      :time-end (js/Date.now))))))))
 
 (defn link->file 
   "Given a headline as text with <b> tag annotations, converts the <b>
@@ -54,13 +56,13 @@
 ;; List Item ------------------------------------------------------------------
 (defui list-item
   "UI representation of a line-item in the file search results. Presents "
-  [{:files/keys [file_id title author]
+  [{:files/keys [file_id]
     :keys [headline]
     :as props}]
   ;; need to update the spec a bit
   {:pre [(s/valid? :list/document props)]} 
   ($ :div.file.open-book
-     {:key (str "file" (or file_id 0))}
+     {:key (str "file" (or file_id 0))} 
      ($  ui/file-header props)
      ($ :a {:href (str "#file/" file_id)} ">>")
      ($ :article.file-text
@@ -80,7 +82,7 @@
         [strategy set-strategy!]
         (persistent.state/with-local-storage "booksearch/strategy" "ts_fast_headline")
         [mode set-mode!]
-        (persistent.state/with-local-storage "booksearch/mode" "phrase")
+        (persistent.state/with-local-storage "booksearch/mode" "logical")
         [state set-state!]
         (uix/use-state {:loading false :error   nil})]
     (uix/use-effect
@@ -102,6 +104,8 @@
                             :on-search set-search-term!})
           ($ ui/strategy-radio-options {:on-set-strategy set-strategy!
                                         :strategy strategy})
+          ($ ui/query-mode-options {:on-set-mode set-mode!
+                                    :mode mode})
           ($ ui/query-stats state))
        (when (:loading state) ($ ui/loading-bar))
        (for [file (:files state)] ($ list-item file))

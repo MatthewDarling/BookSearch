@@ -27,13 +27,13 @@
       (clojure.string/replace "\n\r" 
                               "\n&nbsp;<br>&nbsp;<br>")))
 
-(defn highlight-search-results 
+(defn highlight-search-results
   "Adds html spans with the search-result class to the content.
    Accepts search-results as a collection of maps with the :term key, where each
    term represents an exact match within a document."
   [search-results content]
   (when content
-    (reduce (fn [text term]
+    (reduce (fn [text term] 
               (clojure.string/replace text
                                       (str " " term)
                                       #(str " <span class='search-result'>"
@@ -41,10 +41,10 @@
                                             "</span> ")))
             content
             (->> search-results
-             distinct
-             (sort-by (comp count :term))
-             reverse
-                 (map :term)))))
+                 distinct
+                 (sort-by (comp count :term))
+                 reverse
+                 (keep :term)))))
 
 (defui file-contents
   "Displays a text file as HTML. UI Component to convert a plain text (large) blob 
@@ -89,7 +89,10 @@
 (defui search-results-list
   "UI controls for searching and scrolling through the document between
    foudn search results"
-  [{:keys [loading search set-search-term search-results toggle-loading]
+  [{:keys [loading toggle-loading
+           search set-search-term 
+           search-results  
+           mode set-mode] 
     :as file}]
   {:pre [(s/valid? :profile/document file)]} 
   (let [[result-no set-result-no] (uix/use-state -1)
@@ -112,6 +115,9 @@
                          :on-search (fn [term]
                                       (set-search-term term)
                                       (set-result-no -1))})
+       ($ ui/query-mode-options {:mode mode
+                                 :on-set-mode set-mode})
+       ($ :hr)
        ($ :header
           (if loading
             ($ :h3 "Searching...")
@@ -138,10 +144,14 @@
 (defui file-viewer
   "Main component to display a full text file and offer content search across the file"
   [{{{:keys [id]} :path-params} :route}]
-  (let [[search set-search-term!] (persistent.state/with-local-storage "booksearch/search-history" "")
+  (let [[search set-search-term!]
+        (persistent.state/with-local-storage "booksearch/search-history" "")
+        [mode set-mode!]
+        (persistent.state/with-local-storage "booksearch/mode" "logical")
         [search-results set-search-results!] (uix/use-state nil)
         [file set-file!] (uix/use-state nil)
-        [loading toggle-loading] (uix/use-state false)]
+        [loading toggle-loading] (uix/use-state false)
+        [error set-error!] (uix/use-state nil)]
     ;; Runs on mount only:: Retrieves File contents
     (uix/use-effect
      (fn []
@@ -150,8 +160,8 @@
          ;; Load File Content
          (api/make-remote-call
           (str "http://localhost:3000/api/file?file_id=" id)
-          (fn [response] 
-            (set-file! #(first (cljs.reader/read-string response)))))))
+          (fn [response]
+            (set-file! #(first (cljs.reader/read-string (:body response))))))))
      [loading file id])
     ;; Runs on search submit/update of search var
     (uix/use-effect
@@ -160,21 +170,34 @@
        ;; Get Search Results
        (api/make-remote-call
         (str "http://localhost:3000/api/search?file_id=" id
-             "&query=" (js/encodeURIComponent search) "&query_mode=phrase")
+             "&query=" (js/encodeURIComponent search)
+             "&query_mode=" mode)
         (fn [response]
-          (set-search-results! #(->> response
-                                     cljs.reader/read-string
-                                     distinct
-                                     (sort-by (comp count :term))
-                                     reverse)))))
-     [search id])
+          (let [resp (-> response
+                         :body
+                         cljs.reader/read-string)]
+            (if-not (:error resp)
+              (do
+               (set-search-results! #(->> resp
+                                         distinct
+                                         (sort-by (comp count :term))
+                                         reverse))
+                (set-error! nil))
+              (do 
+                (set-search-results! [])
+                (set-error! (:error resp))))))))
+     [search mode id])
     ;; User Interface
     (if file
       ($ :div.file-profile
+         (when error
+           ($ :dialog.file-error {:open true} error))
          ($ search-results-list (assoc file
                                        :loading loading
                                        :toggle-loading toggle-loading
                                        :search-results search-results
+                                       :mode mode
+                                       :set-mode set-mode!
                                        :search search
                                        :set-search-term set-search-term!))
          ($ file-contents (assoc file

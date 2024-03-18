@@ -102,18 +102,19 @@ label {
     z-index: 2;
 }
 
-.strategy, .stats {
+.strategy, .stats, .mode {
     display: flex;
     flex: 0 1 200px;
     position: sticky;
     top: 40;
     margin: auto;   
-    padding: 2px 0 2px 24px;
+    padding: 2px 24px 2px 24px;
 }
 
 .stats { 
+    flex: 0 2 250px;
     margin: auto 0 auto 24px;
-    width: 180px;
+    width: 200px;
 }
 
 #loading-counter, .elapsed {
@@ -169,6 +170,13 @@ label {
     flex: 1;
     color: var(--error-text);
     padding: 8px 16px 4px 16px;
+}
+
+.file-error {
+    position: sticky;
+    top: 0; 
+    z-index: 4;
+    color: #c00;
 }
 
 .loading {

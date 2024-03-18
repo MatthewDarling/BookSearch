@@ -1,6 +1,7 @@
 (ns app.handlers
   (:require [honey.sql :as sql]
             [next.jdbc :as jdbc] 
+            [ring.util.codec :as codec]
             [ring.util.response :as response])
   (:gen-class))
 
@@ -37,7 +38,7 @@
                  [:cast "english" :regconfig]
                  :content_array
                  :content_tsv
-                 [:phraseto_tspquery [:cast query :text]]] :headline] [true]]
+                 [(query-mode->tsp-query-fn query-mode) [:cast query :text]]] :headline] [true]]
    :where [(keyword "@@") :content_tsv [(query-mode->tsp-query-fn query-mode) query]]
    :group-by [:files.file_id]
    :order-by [:files.file_id]})
@@ -70,8 +71,7 @@
   "Async and sync compatible handler. Most example online show only a synchronous
   handler, but when I only define the one arg version, I get 'wrong number of
   args' when calling with curl."
-  ([{{:strs [file_id]}
-     :query-params :as request}]
+  ([{{:strs [file_id]} :query-params}]
    (let [file-id (Integer/parseInt file_id)
          my-datasource (jdbc/get-datasource db-config)]
      (with-open [connection (jdbc/get-connection my-datasource)]
@@ -91,7 +91,8 @@
    (let [my-datasource (jdbc/get-datasource db-config)]
      (with-open [connection (jdbc/get-connection my-datasource)]
        (try
-         (let [result (->> (compile-search-query query
+         (let [query (codec/form-decode query)
+               result (->> (compile-search-query query
                                                  query_mode
                                                  strategy)
                            sql/format
@@ -104,27 +105,28 @@
            (-> {:error (.toString e)}
                pr-str
                response/response
-               (response/status 401)
+               (response/status 500)
                add-cors-headers))))))
   ([request respond raise]
    (respond (list-files-handler request))))
 
 (defn file-search-handler
   ([{{:strs [query query_mode file_id]}
-     :query-params :as request}]
+     :query-params}]
    {:pre [(#{"phrase" "logical"} query_mode)]}
-
-   (let [file-id (Integer/parseInt file_id)
+   (let [query (codec/form-decode query)
+         file-id (Integer/parseInt file_id)
          my-datasource (jdbc/get-datasource db-config)]
      (with-open [connection (jdbc/get-connection my-datasource)]
-       (->> {:select [[[:tsp_present_text :headline.words] :term]]
+       (try 
+         (->> {:select [[[:tsp_present_text :headline.words] :term]]
              :from [:files]
              :left-join [[:file_lookup_16k :fl] [:= :fl/file_id :files/file_id]
                          [[:tsp_query_matches
                            [:cast "english" :regconfig]
                            :content_array
                            :content_tsv
-                           [:phraseto_tspquery [:cast query :text]]
+                           [(query-mode->tsp-query-fn query_mode) [:cast query :text]]
                            [:cast 50 :integer]] :headline] [true]]
              :where [:and
                      [:= :files/file_id file-id]
@@ -133,7 +135,13 @@
             (jdbc/execute! connection)
             pr-str
             response/response
-            add-cors-headers))))
+            add-cors-headers)
+         (catch Exception e
+           (-> {:error (.toString e)}
+               pr-str
+               response/response
+               (response/status 500)
+               add-cors-headers))))))
   ([request respond raise]
    (respond (file-search-handler request))))
 

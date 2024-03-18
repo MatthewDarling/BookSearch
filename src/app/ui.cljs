@@ -52,6 +52,29 @@
            :on-set-strategy on-set-strategy
            :strategy strategy}))))
 
+(defui mode-radio
+  [{:keys [strategy value on-set-mode]}]
+  ($ :<>
+     ($ :input
+        {:type :radio
+         :name :rad-mode
+         :on-change (fn [^js e]
+                      (on-set-mode (.. e -target -value)))
+         :value value
+         :checked (= strategy value)})
+     ($ :label {:for value} value)))
+
+(defui query-mode-options [{:keys [mode on-set-mode]}]
+  ($ :div.mode
+     ($ mode-radio
+        {:value "phrase"
+         :on-set-mode on-set-mode
+         :strategy mode})
+     ($ mode-radio
+        {:value "logical"
+         :on-set-mode on-set-mode
+         :strategy mode})))
+
 (defn loading-bar [_]
   ($ :.loading
      "Loading "
