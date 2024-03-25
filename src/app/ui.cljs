@@ -27,7 +27,8 @@
   [{:keys [strategy value on-set-strategy]}]
   ($ :<>
      ($ :input
-        {:type :radio
+        {:class "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+         :type :radio
          :name :rad-strategy
          :on-change (fn [^js e]
                       (on-set-strategy (.. e -target -value)))
@@ -54,15 +55,18 @@
 
 (defui mode-radio
   [{:keys [strategy value on-set-mode]}]
-  ($ :<>
+  ($ :div
+     {:class "flex items-center mb-4"}
      ($ :input
         {:type :radio
+         :class "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
          :name :rad-mode
          :on-change (fn [^js e]
                       (on-set-mode (.. e -target -value)))
          :value value
          :checked (= strategy value)})
-     ($ :label {:for value} value)))
+     ($ :label {:for value
+                :class "ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"} value)))
 
 (defui query-mode-options [{:keys [mode on-set-mode]}]
   ($ :div.mode

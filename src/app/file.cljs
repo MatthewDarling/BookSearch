@@ -161,7 +161,8 @@
          (api/make-remote-call
           (str "http://localhost:3000/api/file?file_id=" id)
           (fn [response]
-            (set-file! #(first (cljs.reader/read-string (:body response))))))))
+            (set-file! #(first (cljs.reader/read-string response))))
+          js/console.error)))
      [loading file id])
     ;; Runs on search submit/update of search var
     (uix/use-effect
@@ -173,19 +174,15 @@
              "&query=" (js/encodeURIComponent search)
              "&query_mode=" mode)
         (fn [response]
-          (let [resp (-> response
-                         :body
-                         cljs.reader/read-string)]
-            (if-not (:error resp)
-              (do
-               (set-search-results! #(->> resp
-                                         distinct
-                                         (sort-by (comp count :term))
-                                         reverse))
-                (set-error! nil))
-              (do 
-                (set-search-results! [])
-                (set-error! (:error resp))))))))
+          (let [resp (cljs.reader/read-string response)]
+            (set-search-results! (->> resp
+                                      distinct
+                                      (sort-by (comp count :term))
+                                      reverse))
+            (set-error! nil)))
+        (fn [resp]
+          (set-search-results! [])
+          (set-error! resp))))
      [search mode id])
     ;; User Interface
     (if file

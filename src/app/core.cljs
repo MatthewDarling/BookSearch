@@ -17,19 +17,13 @@
    [["/"
      {:name ::frontpage
       :view file.list/file-list
-      :controllers [{:start (log-fn "start" "frontpage controller")
-                     :stop (log-fn "stop" "frontpage controller")}]}]
+      :controllers []}]
     ["file/:id"
      {:name ::file
       :view file/file-viewer
       :parameters {:path {:id js/parseInt}}
-      :controllers [{:parameters {:path [:id]}
-                     :start (fn [{:keys [path]}]
-                              (log-fn "start" "item controller" (:id path)))
-                     :stop (fn [{:keys [path]}]
-                             (log-fn "stop" "item controller" (:id path)))}]}]]
-   {:data {:controllers [{:start (log-fn "start" "root-controller")
-                          :stop (log-fn "stop" "root controller")}]}}))
+      :controllers [{:parameters {:path [:id]}}]}]]
+   {:data {:controllers []}}))
 
 (defui current-page []
   (let [[match set-match!] (ui/use-state nil)]

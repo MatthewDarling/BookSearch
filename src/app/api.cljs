@@ -1,14 +1,11 @@
 (ns app.api
   (:require 
-   [cljs.core.async :refer [<!]]
-   [cljs-http.client :as http] 
+   [ajax.core :refer [GET]] 
    [clojure.set] 
-   [uix.dom])
-  (:require-macros [cljs.core.async.macros :refer [go]]))
-
+   [uix.dom]))
 
 ;; API Request ----------------------------------------------------------------
-(defn make-remote-call [endpoint callback]
-  (go 
-    (let [response (<! (http/get endpoint))] 
-      (callback response))))
+(defn make-remote-call [endpoint callback error-handler]
+  (GET endpoint 
+    {:handler callback
+     :error-handler error-handler}))

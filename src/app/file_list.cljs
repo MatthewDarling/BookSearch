@@ -2,7 +2,7 @@
   (:require
    [app.api :as api]
    [app.persistent-state :as persistent.state]
-   [app.ui :as ui] 
+   [app.ui :as ui]
    [cljs.reader]
    [cljs.spec.alpha :as s]
    [clojure.set]
@@ -14,11 +14,10 @@
 (s/def :files/file_id int?)
 (s/def :files/title string?)
 (s/def :files/author string?)
-(s/def :files/headline string?)
-(s/def :list/document (s/keys :req [:files/file_id 
+(s/def ::headline string?)
+(s/def :list/document (s/keys :req [:files/file_id
                                     :files/title
-                                    :files/author]
-                              :req-un [:files/headline]))
+                                    :files/author]))
 
 (defn search-handler
   "Generates a response handler function for file list search.
@@ -28,30 +27,38 @@
                   state, and the time-start/end of the request."
   [set-state!]
   (fn [response]
-    (let [resp (cljs.reader/read-string (:body response))]
-     (if (:error resp)
-      (set-state!
-       (fn [s] (assoc s
-                      :error (:error resp)
-                      :loading false
-                      :files []
-                      :time-end (js/Date.now))))
+    (let [resp (cljs.reader/read-string response)] 
       (set-state!
        (fn [s] (assoc s
                       :error nil
                       :loading false
                       :files resp
-                      :time-end (js/Date.now))))))))
+                      :time-end (js/Date.now)))))))
 
-(defn link->file 
+(defn search-error
+  "Generates a response handler function for file list search.
+   Accepts:
+   - set-files! - a function to update a new file list into
+   - set-state! - a function to update state to track errors loading as boolean
+                  state, and the time-start/end of the request."
+  [set-state!]
+  (fn [response]
+    (set-state!
+     (fn [s] (assoc s
+                    :error response
+                    :loading false
+                    :files []
+                    :time-end (js/Date.now))))))
+
+(defn link->file
   "Given a headline as text with <b> tag annotations, converts the <b>
    tags into anchors with links to the fil profile page and route."
   [headline file_id]
-  (-> headline
-      (clojure.string/replace "<b>"
-                              (str "<a href='#file/" file_id "'><b>"))
-      (clojure.string/replace "</b>"
-                              "</b></a>")))
+  (some-> headline
+          (clojure.string/replace "<b>"
+                                  (str "<a href='#file/" file_id "'><b>"))
+          (clojure.string/replace "</b>"
+                                  "</b></a>")))
 
 ;; List Item ------------------------------------------------------------------
 (defui list-item
@@ -60,9 +67,9 @@
     :keys [headline]
     :as props}]
   ;; need to update the spec a bit
-  {:pre [(s/valid? :list/document props)]} 
+  {:pre [(s/valid? :list/document props)]}
   ($ :div.file.open-book
-     {:key (str "file" (or file_id 0))} 
+     {:key (str "file" (or file_id 0))}
      ($  ui/file-header props)
      ($ :a {:href (str "#file/" file_id)} ">>")
      ($ :article.file-text
@@ -70,7 +77,7 @@
          {:__html (link->file headline file_id)}})))
 
 ;; File List ----------------------------------------------------------------
-(defui file-list 
+(defui file-list
   "Main File Search and List component. 
    Accepts router props but do not expect anything from them.
    Draws a file list while holding the user search term in persistent state,
@@ -78,7 +85,7 @@
    booksearch/strategy. "
   [_]
   (let [[search set-search-term!]
-        (persistent.state/with-local-storage "booksearch/search-history" "") 
+        (persistent.state/with-local-storage "booksearch/search-history" "")
         [strategy set-strategy!]
         (persistent.state/with-local-storage "booksearch/strategy" "ts_fast_headline")
         [mode set-mode!]
@@ -95,9 +102,10 @@
                                   (js/encodeURIComponent search)
                                   "&query_mode=" mode
                                   "&strategy=" strategy)
-                             (search-handler set-state!)))
+                             (search-handler set-state!)
+                             (search-error set-state!)))
      [search strategy mode])
-    ($ :.app
+    ($ :.app.p-8.max-w-full
        ($ ui/header)
        ($ :.input-wrapper
           ($ ui/text-field {:initial-value search
