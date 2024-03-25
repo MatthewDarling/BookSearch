@@ -27,21 +27,24 @@
 (defn compile-fast-search-query
   [query query-mode]
   {:pre [(#{"phrase" "logical"} query-mode)]}
-  {:select [:files.file_id
-            :filename
-            :title
-            :author
-            [[:tsp_present_text [:array_to_string [:slice_array [:array_agg :headline/headline] 1 5] " ... "]] :headline]]
-   :from [:files]
-   :left-join [[:file_lookup_16k :fl] [:= :fl/file_id :files/file_id]
-               [[:ts_fast_headline_cover_density
-                 [:cast "english" :regconfig]
-                 :content_array
-                 :content_tsv
-                 [(query-mode->tsp-query-fn query-mode) [:cast query :text]]] :headline] [true]]
-   :where [(keyword "@@") :content_tsv [(query-mode->tsp-query-fn query-mode) query]]
-   :group-by [:files.file_id]
-   :order-by [:files.file_id]})
+  {:select [:file_id [[:tsp_present_text [:string_agg :headline " ... "]] :headline] :title :author]
+   :from [[{:select [:files.file_id
+                     :headline
+                     :title
+                     :author
+                     [[:raw "ROW_NUMBER() OVER (PARTITION BY files.FILE_ID ORDER BY files.file_id, density DESC)"] :rn]]
+            :from [:files]
+            :left-join [[:file_lookup_16k :fl] [:= :fl/file_id :files/file_id]
+                        [[:ts_fast_headline_cover_density
+                          [:cast "english" :regconfig]
+                          :content_array
+                          :content_tsv
+                          [(query-mode->tsp-query-fn query-mode) [:cast query :text]]] :headline] [true]]
+            :where [(keyword "@@") :content_tsv [(query-mode->tsp-query-fn query-mode) query]]
+            :order-by [:files.file_id :density]} 
+           :data]]
+   :where [:< :rn 6]
+   :group-by [:file_id :title :author]})
 
 (defn compile-search-query
   [query query-mode strategy]
