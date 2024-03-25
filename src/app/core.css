@@ -80,7 +80,7 @@ label {
     width: 90vw;
     background: var(--app-bg);
     border-radius: 2px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px var(--color-accent);
     border: 2px solid var(--color-accent);
 }
 
@@ -198,7 +198,7 @@ label {
 }
 
 .file-search {
-    background: #d7e9fc;
+    background: var(--color-accent);
     z-index: 3;
     position: sticky;
     top: 70px;
@@ -271,20 +271,7 @@ label {
     text-transform: uppercase;
 }
 
-.open-book footer {
-    padding-top: 1em;
-}
 
-.open-book footer #page-numbers {
-    display: none;
-    list-style: none;
-    padding: 0;
-    text-align: left;
-}
-
-.open-book footer #page-numbers > li:last-child {
-    text-align: right;
-}
 
 /* Chapter Title */
 .open-book .chapter-title {
@@ -343,28 +330,6 @@ label {
     text-transform: uppercase;
 }
 
-.open-book article > ul,
-.open-book article > ol {
-    padding-left: 3em;
-}
-
-.open-book article > ul ul {
-    padding-left: 1em;
-}
-
-
-
-.open-book sup {
-    color: #cc0000;
-    font-family: 'Rock Salt', cursive;
-    left: 0;
-    margin-top: -1em!important;
-    max-width: 100%!important;
-    position: absolute;
-    text-align: center;
-    width: 100%;
-}
-
 .open-book mark, b {
     background: linear-gradient(to bottom, rgba(222,255,0,1) 0%,rgba(222,255,0,0.5) 60%,rgba(222,255,0,1) 100%);
 }
@@ -393,13 +358,6 @@ label {
     margin: 1em 0;
 }
 
-.open-book dl {
-    border: solid 0 #ccc;
-    border-width: 0.0625em 0;
-    break-inside: avoid-column;
-    margin: 1em auto;
-    padding: 1em 0;
-}
 
 /*** OPENING BOOK ANIMATION ***/
 .book {

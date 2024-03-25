@@ -105,7 +105,7 @@
                              (search-handler set-state!)
                              (search-error set-state!)))
      [search strategy mode])
-    ($ :.app.p-8.max-w-full
+    ($ :.app
        ($ ui/header)
        ($ :.input-wrapper
           ($ ui/text-field {:initial-value search
