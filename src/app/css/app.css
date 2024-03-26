@@ -1,0 +1,241 @@
+:root {
+    --color-accent: #b9c5df;
+    --color-text: #173878;
+    --light-bg: #f6f6f6;
+    --app-bg: #fafafa;
+    --light-text: #369;
+    --error-text: rgb(208, 51, 51);
+}
+
+html {
+    box-sizing: border-box;
+}
+
+html * {
+    box-sizing: inherit;
+}
+
+h1, h2 {
+    padding: 0;
+    color: var(--color-text);
+    font-weight: 100;
+    text-transform: uppercase;
+    font-size: 16px;
+
+}
+
+h4, h5 {
+    padding: 0;
+    color: var(--light-text);
+    font-weight: 100;
+}
+
+
+h1, h2, h3, h4, h5 {
+    margin: auto 0;   
+    font: 700  'Playfair Display', sans-serif;
+}
+
+h1 {
+    font-weight: 700;
+    font-size: 20px;
+    color: #000;
+}
+
+
+body {
+    margin: 0;
+    font: 400 14px sans-serif;
+    letter-spacing: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -moz-font-feature-settings: "liga" on;
+    line-height: 1.4;
+    text-rendering: optimizeLegibility;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100%;
+}
+
+#root {
+  width: 100%;
+  padding: 48px;
+}
+
+input {
+    font-family: 'Inter', sans-serif;
+}
+
+
+label {
+    padding: 0 8px 0 0;
+}
+
+.app {
+    margin: 24px 0;
+    display: flex;
+    flex-direction: column;
+    width: 90vw;
+    background: var(--app-bg);
+    border-radius: 2px;
+    box-shadow: 0 2px 8px var(--color-accent);
+    border: 2px solid var(--color-accent);
+}
+
+.app-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 12px 0;
+    margin: 0 0 0 12px;
+}
+
+.input-wrapper {
+    display: flex;
+    flex: 1 1 100%;
+    padding: 0px 12px;
+    background: var(--light-bg);
+    border-left: none;
+    border-right: none;
+    border-top: 2px solid var(--color-accent);
+    border-bottom: 2px solid var(--color-accent);
+    color: var(--color-text);
+    position: sticky;
+    top: 0px;
+    z-index: 2;
+}
+
+.strategy, .stats, .mode {
+    display: flex;
+    flex: 0 1 200px;
+    top: 40;
+    margin: auto;   
+    padding: 2px 24px 2px 24px;
+}
+
+.stats { 
+    flex: 0 2 250px;
+    margin: auto 0 auto 24px;
+    width: 200px;
+}
+
+#loading-counter, .elapsed {
+    font-size: 16px;
+    font-weight: 800;
+    padding-left: 8px;
+}
+
+.text-input-wrapper {
+    flex: 1 1 50%;
+    width: 100%;
+}
+
+.text-input {   
+    flex: 1 1 50%;
+    font-size: 18px;
+    margin: 24px 0;
+    padding: 12px 12px;
+    border: 2px solid var(--color-accent);
+    color: var(--color-text);
+    width: 100%;
+}
+
+.file {
+    border-bottom: 2px solid var(--color-accent);
+    padding: 8px 12px;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    justify-content: space-between;
+    font-weight: 200;
+}
+
+.file-header {
+    display: flex;
+    padding: 2px 16px;
+    border-bottom: 2px solid var(--color-accent);
+    background: var(--light-bg);
+    border-radius: 4px 4px;
+    align-items: left;
+    justify-content: space-between;
+    font-weight: 500;
+}
+
+.file-text {
+    flex: 1;
+    color: var(--color-text);
+    padding: 8px 16px 4px 16px;
+}
+
+.error {
+    flex: 1;
+    color: var(--error-text);
+    padding: 8px 16px 4px 16px;
+}
+
+.file-error {
+    position: sticky;
+    top: 0; 
+    z-index: 4;
+    color: #c00;
+}
+
+.loading {
+    animation-name: color;
+    animation-duration: 10s;
+    animation-iteration-count: infinite;
+    flex: 1;
+    background: var(--light-text);
+    padding: 24px;
+    margin: auto;
+    width: 90%;
+    text-align:center;
+    color: #fff;
+    min-height: 75px;
+}
+
+.file-search {
+    background: var(--color-accent);
+    z-index: 3;
+    position: sticky;
+    top: 70px;
+    border-bottom: 1px solid var(--light-text);
+    padding: 16px;
+    width: 300px;
+    float: right;
+    margin: 0 50px;
+}
+
+.search-controls {
+    display: flex;
+    justify-content: space-between;
+}
+
+.file-title {
+    background: #fff;
+    z-index: 2;
+    padding: 12px 0; 
+}
+
+.search-result {
+    font-size: 14px;
+    font-weight: 700;  
+}
+
+@keyframes color {
+    0% {
+        background-color: var(--light-text);
+        color: #fff;
+    }
+    50% {
+        background-color: #fff;
+        color: #000;
+    }
+    100% {
+        background-color: var(--light-text);
+        color: #fff;
+    }
+}

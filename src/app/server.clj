@@ -11,8 +11,7 @@
    ["/api"
     ["/list" {:get handlers/list-files-handler}]
     ["/file" {:get handlers/file-contents-handler}]
-    ["/search" {:get handlers/file-search-handler}]
-    ]))
+    ["/search" {:get handlers/file-search-handler}]]))
 
 (def app
   (ring/ring-handler
@@ -42,10 +41,3 @@
 (defn reset []
   (stop)
   (-main))
-
-(comment
-  (-main) 
-  (app {:request-method :get, :uri "/api/file?file_id=26"})
-
-  (stop)
-  (reset))
