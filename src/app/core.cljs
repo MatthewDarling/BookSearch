@@ -8,10 +8,6 @@
    [uix.core :as ui :refer [defui $]]
    [uix.dom]))
 
-(defn log-fn [& params]
-  (fn [_]
-    (apply js/console.log params)))
-
 (def routes
   (rf/router
    [["/"

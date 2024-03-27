@@ -32,7 +32,9 @@
                      :headline
                      :title
                      :author
-                     [[:raw "ROW_NUMBER() OVER (PARTITION BY files.FILE_ID ORDER BY files.file_id, density DESC)"] :rn]]
+                     [[:raw "ROW_NUMBER() 
+                             OVER (PARTITION BY files.FILE_ID 
+                                   ORDER BY files.file_id, density DESC)"] :rn]]
             :from [:files]
             :left-join [[:file_lookup_16k :fl] [:= :fl/file_id :files/file_id]
                         [[:ts_fast_headline_cover_density

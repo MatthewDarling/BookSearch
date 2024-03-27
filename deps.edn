@@ -1,4 +1,6 @@
-{:deps {cljs-ajax/cljs-ajax {:mvn/version "0.8.4"} 
+{:deps {thheller/shadow-cljs {:mvn/version "2.25.8"}
+        cljs-ajax/cljs-ajax {:mvn/version "0.8.4"} 
+        cljsjs/semantic-ui-react {:mvn/version "0.88.1-0"}
         com.github.seancorfield/honeysql {:mvn/version "2.6.1126"}
         com.github.seancorfield/next.jdbc {:mvn/version "1.3.909"}
         com.pitch/uix.core {:mvn/version "1.0.1"}
@@ -8,9 +10,16 @@
         org.clojure/clojure {:mvn/version "1.11.1"}
         org.clojure/clojurescript {:mvn/version "1.11.60"}
         org.postgresql/postgresql {:mvn/version "42.6.0"}
-        ring/ring {:mvn/version "1.11.0"}}
+        ring/ring {:mvn/version "1.11.0"}} 
+ :npm-deps {cljsjs/semantic-ui-react "0.88.1-0"}
  :paths ["src"]
  :aliases {:dev {:extra-paths ["dev"]
-                 :extra-deps {thheller/shadow-cljs {:mvn/version "2.25.8"}
+                 :extra-deps {
                               binaryage/devtools {:mvn/version "1.0.7"}}}
-           :repl {:main-opts ["-i" "src/app/server.clj" "-e" "(in-ns 'app.server)" "-r"]}}}
+           :repl {:main-opts ["-i" "src/app/server.clj" "-e" "(in-ns 'app.server)" "-r"]}}
+ :builds
+ {:app
+  {:target :browser 
+   :js-options
+   {:resolve {"semantic-ui-react" {:target :global
+                       :global "semantic-ui-react"}}}}}}

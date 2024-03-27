@@ -2,6 +2,7 @@
   (:require
    [app.api :as api]
    [app.persistent-state :as persistent.state]
+   [app.semantic-ui :as sui]
    [app.ui :as ui] 
    [cljs.reader]
    [cljs.spec.alpha :as s]
@@ -54,7 +55,7 @@
     :keys [search-results]
     :as file}]
   {:pre [(s/valid? :profile/document file)]}
-  ($ :.file.open-book
+  ($ :<>
      ($ ui/file-header file)
      ($ :article.file-text
         {:dangerouslySetInnerHTML
@@ -90,11 +91,11 @@
   "UI controls for searching and scrolling through the document between
    foudn search results"
   [{:keys [loading toggle-loading
-           search set-search-term 
-           search-results  
-           mode set-mode] 
+           search set-search-term
+           search-results
+           mode set-mode]
     :as file}]
-  {:pre [(s/valid? :profile/document file)]} 
+  {:pre [(s/valid? :profile/document file)]}
   (let [[result-no set-result-no] (uix/use-state -1)
         ;; js collection of dom elements bearing the search-result class
         ;; which is added via highlight-search-results to the main content
@@ -104,41 +105,62 @@
     ;; Effect handles update to search results by resetting the results number 
     ;; to -1 and then emulating first click to forward the user to item 0
     (uix/use-effect
-     (fn [] 
+     (fn []
        (toggle-loading false)
        (focus-search-result set-result-no class-list -1 inc))
      [search-results toggle-loading class-list])
     ;; User Interface
-    ($ :div.file-search.open-book
-       ($ ui/file-header file)
-       ($ ui/text-field {:initial-value search
-                         :on-search (fn [term]
-                                      (set-search-term term)
-                                      (set-result-no -1))})
-       ($ ui/query-mode-options {:mode mode
-                                 :on-set-mode set-mode})
-       ($ :hr)
-       ($ :header
-          (if loading
-            ($ :h3 "Searching...")
-            ($ :<> 
-             ($ :h4 (inc result-no) " of " (.-length class-list) " results matching:")
-             ($ :h3 (apply str (interpose " " (mapv :term search-results))))))) 
-       ($ :.search-controls
-          ($ :button
-             {:on-click #(on-click dec)
-              :disabled (< result-no 1)}
-             "PREVIOUS")
-          ($ :button
-             {:on-click #(on-click (partial * 1))
-              :disabled (= result-no -1)}
-             "RELOCATE")
-          ($ :button
-             {:on-click #(on-click inc)
-              :disabled (>= result-no (- (.-length class-list) 1))}
-             "NEXT"))
-       ($ :hr)
-       ($ :a {:href "#"} "<< Back to Search"))))
+    ($ :.file-search
+       ($ sui/content
+          ($ ui/file-header file)
+          ($ ui/text-field {:initial-value search
+                            :on-search (fn [term]
+                                         (set-search-term term)
+                                         (set-result-no -1))})
+          ($ ui/query-mode-options {:mode mode
+                                    :on-set-mode set-mode})
+          ($ :hr)
+          ($ sui/h3
+             (if loading
+               ($ sui/content "Searching...")
+               ($ sui/content
+                  ($ :i.icon.bullseye.green)
+                  (inc result-no) " of " (.-length class-list) " results matching:"
+                  ($ :.sub.header 
+                   ($ :ul
+                     (mapv #($ :li {:key (:term %)}
+                               ($ sui/h4 (:term %))) search-results))))))
+          ($ :hr)
+          ($ sui/buttons
+             {:class [:fluid]}
+             ($ sui/button
+                {:on-click #(on-click dec)
+                 :class [:basic 
+                         (when-not (< result-no 1)
+                           :green)]
+                 :data-tooltip "Scroll to the previous result"
+                 :data-position "bottom right"
+                 :disabled (< result-no 1)}
+                ($ :i.icon.angle.double.left))
+             ($ sui/button
+                {:on-click #(on-click (partial * 1))
+                 :class [:basic (when-not (neg? result-no)
+                                  :blue)]
+                 :disabled (= result-no -1)
+                 :data-tooltip "Scroll to the current result"
+                 :data-position "bottom right"}
+                ($ :i.icon.map.pin))
+             ($ sui/button
+                {:on-click #(on-click inc)
+                 :class [:basic 
+                         (when-not (>= result-no (- (.-length class-list) 1))
+                           :green)]
+                 :disabled (>= result-no (- (.-length class-list) 1))
+                 :data-tooltip "Scroll to the next result"
+                 :data-position "bottom right"}
+                ($ :i.icon.angle.double.right)))
+          ($ :hr)
+          ($ :a {:href "#"} "<< Back to Search")))))
 
 ;; File Viewer ----------------------------------------------------------------
 (defui file-viewer
@@ -182,11 +204,16 @@
             (set-error! nil)))
         (fn [resp]
           (set-search-results! [])
-          (set-error! resp))))
+          (set-error! (str resp)))))
      [search mode id])
+    
     ;; User Interface
     (if file
       ($ :<>
+         ($ sui/segment
+            {:class [:raised :very :padded :text]}
+            (when error ($ ui/file-error error))
+            ($ file-contents (assoc file :search-results search-results)))
          ($ search-results-list
             (assoc file
                    :loading loading
@@ -195,10 +222,5 @@
                    :mode mode
                    :set-mode set-mode!
                    :search search
-                   :set-search-term set-search-term!))
-         ($ :div.file-profile
-            (when error
-              ($ :dialog.file-error {:open true} error))
-            ($ file-contents (assoc file
-                                    :search-results search-results))))
-      ($ :div {:style {:width "100vw"}} ($ ui/loading-bar)))))
+                   :set-search-term set-search-term!)))
+      ($ ui/loading-bar))))
