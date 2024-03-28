@@ -96,8 +96,9 @@ label {
   gap: 6px;
 }
 
-.input-wrapper  .buttons {
-  margin: 4px 0 0 0;
+.input-wrapper .buttons {
+  display: flex;
+  margin: auto 0;
 }
 
 .input-wrapper .row {
@@ -124,7 +125,20 @@ label {
 
 .text-input {
   flex: 1 !important;
-  margin-right: 64px !important;
+  * {
+    margin: auto 0;
+  }
+}
+
+.main-icon {
+  position: absolute;
+  right: 32px;
+  font-size: 36px;
+}
+
+.mode-controls {
+  display: flex;
+  margin: auto 0 auto 16px;
 }
 
 .query-stats {
@@ -181,13 +195,25 @@ hr {
     position: sticky;
     top: 10px;
     margin: 0 auto;
-    width: 350px;
+    flex: 0 0 450px;
     float: right;
     padding: 0 0 0 24px;
 }
 
 .file-search .text-input {
     margin: 12px 0 24px 0;
+}
+
+.file-search-results-list {
+  display: flex;
+  flex-wrap: wrap;
+  flex-flow: wrap;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: stretch;
+  li {
+    margin: 0 24px 0 0;
+  }
 }
 
 .search-controls {
