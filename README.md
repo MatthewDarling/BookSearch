@@ -1,24 +1,35 @@
 # BookSearch
 This is a small Clojure(script) + PostgreSQL application, which, on its surface, is a user interface that allows for searching and content retrieval of large texts.  The purpose and reason-to-be for this application is twofold:
 
-### Purpose 1. Vetting Performance & Functionality of PostgreSQL Full-Text Indexing Techniques
+## Purpose 1. Vetting Performance & Functionality of PostgreSQL Full-Text Indexing Techniques
 Recently, we have been working on two (2) extensions for PostgreSQL, both of which are focussed on PGSQL's text search functionality, performance and limitations.
-
 #### 1A. pg_ts_semantic_headline
 The `PG_SEMANTIC_HEADLINE` extension provides PGSQL with the ability to highlight multi-word phrases and dratically improves search result highlighting of multi-word phrases and boolean expressions. Likewise, the extension offers a pattern for pre-realizing lookup vectors and content retrieval arrays to a DB table, that purports to outperform the built-in PGSQL functions by a time factor of 5x 20x faster.
-
 #### 1B. pg_large_text_search
 PostgreSQL's Text Search functionality has a number of limitation (read: hard limits) on the size and scope of text it is able to properly index. The `PG_LARGE_TEXT_SEARCH` extension captures these limitations, and given a large text, will divide that text into n fragments, where each fragment has been proven to conform to the PGSQL limitations. In indexing a large text file, one would save n fragments in a lookup table, each with a valid and conformant TSVector lookup column.
 
-### Purpose 2. Greenfield Clojure/Clojurescript Development
+## Purpose 2. Greenfield Clojure/Clojurescript Development
 We wanted to create an opportunity to explore modern tools for Clojurescript, and more specifically novel approaches to React.JS, effects and hooks. The goal is to broaden our understanding and patterning of frontend state management without component lifecycle methods, and take advantage of next-generation tooling in an otherwise stable Clojure ecosystem.
+#### Technologies Used
+*Frontend*
+- `UiX` - https://github.com/pitch-io/uix - Introduces React Effects and Hooks instead of React Lifecycle methods; doea away with `hiccup` to greatly improve clinet-side rendering speed
+- `cljs-ajax` - https://github.com/JulianBirch/cljs-ajax - Preferred to `cljs-http` for its overt declaration of `on-success` and `on-error` handlers, and its elimination of clojure.core.async/go.
+- `semantic-ui-react` - https://react.semantic-ui.com/ - Brilliant semantic classing structure, quite attractive, and has a name befitting of this project.
+- `shadow-cljs` - https://github.com/thheller/shadow-cljs - compile your ClojureScript code with a focus on simplicity and ease of use.
+*Backend*
+- PostgreSQL - https://www.postgresql.org/ -  open source object-relational database system with over 35 years of active development that has earned it a strong reputation for reliability, feature robustness, and performance... except when it comes to the performance of full-text search... :)
+- Flyway - https://flywaydb.org/ - Database Schema Management and Automation
+- HoneySQL - https://github.com/seancorfield/honeysql - Version 2! 
+- Next.JDBC - https://github.com/seancorfield/next-jdbc
+- Reitit Router - https://github.com/metosin/reitit
 
 ## Setup
 ### Prerequisites
 - PostgreSQL 14+
 - Flyway : https://www.red-gate.com/products/flyway/community/download/
 - make : O/S-dependant CLI tool
-- 
+- yarn : https://yarnpkg.com/
+  
 ### Step 1: Make PGSQL extensions from submodules
 In order to build to latest version of the PGSQL Extensions we are using, where each is linked as a git submodule under the project root, we will execute the following command:
 ```
@@ -49,36 +60,49 @@ That said, we also have filled `public_domain_texts` with a selection of the 50 
 make load_files
 ```
 Careful! This script can take a few minutes to run. Grab a drink and take a breath.
-** TODO: fix this script... :)
+** TODO: improve the performance of this script... :)
 
-## Development
-```shell
-yarn # install NPM deps
-yarn dev # run dev build in watch mode with CLJS REPL
+### Step 4: Start the Server
+From the `BookSearch` directory, run the following to install backend dependancies:
 ```
+clj -M:repl
+```
+To start the application REPL in the core server namespace. Once loaded, you will see a `app.server=>` prompt. In that prompt, type:
+```
+(-main)
+```
+to open the server to requests. This should produce:
+```
+app.server=> (-main)
+server running in port 3000
+#object[org.eclipse.jetty.server.Server 0x4678320a "Server@4678320a{STARTED}[11.0.18,sto=0]"]
+```
+
+### Step 5: Start the Client Application
+To start the client application for development and hot-reloading of code, use:
+```shell
+yarn      # install NPM deps
+yarn dev  # run dev build in watch mode with CLJS REPL
+```
+and this should produce something like:
+```
+shadow-cljs - HTTP server available at http://localhost:8080
+shadow-cljs - server version: 2.25.8 running at http://localhost:9630
+shadow-cljs - nREPL server started on port 50868
+shadow-cljs - watching build :app
+[:app] Configuring build.
+[:app] Compiling ...
+[:app] Build completed. (845 files, 0 compiled, 0 warnings, 4.40s)
+```
+Visit http://localhost:8080 to see the application running.
+
 
 ## Production
 ```shell
 yarn release # build production bundle
 ```
 
-
-
-
-
-* Install Postgres
-* [Install Flyway](https://documentation.red-gate.com/fd/command-line-184127404.html?_gl=1*8e1rlp*_ga*MTMxMTcwMTk5OC4xNzA5NjU0MjUw*_ga_X7VDRWRT4P*MTcwOTY1NDI0OS4xLjAuMTcwOTY1NDI0OS42MC4wLjA.)
-* Apply the contents of sql/init.sql somehow (not yet automated)
-* Apply migrations:
-    flyway migrate
-
-
-
-
-
-
 ### Start a Clojure REPL for the server
-
 ```
 clj -M:repl
 ```
@@ -92,8 +116,8 @@ clj -M:repl
 
 # To Do List
 
-1. Implement logical query_mode
-2. Implement ts_fast_headline strategy
+1. Implement logical query_mode - DONE!
+2. Implement ts_fast_headline strategy - DONE!
 3. Improve API response handling, pr-str is probably not the right approach
-4. Implement front-end routing
-5. Maybe offer searching within a single document, displaying its text
+4. Implement front-end routing - DONE!
+5. Maybe offer searching within a single document, displaying its text - DONE!
