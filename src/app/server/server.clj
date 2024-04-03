@@ -1,5 +1,5 @@
-(ns app.server
-  (:require [app.handlers :as handlers] 
+(ns app.server.server
+  (:require [app.server.handlers :as handlers] 
             [reitit.ring :as ring]
             [reitit.ring.middleware.parameters :as middleware]
             [ring.adapter.jetty :as jetty])

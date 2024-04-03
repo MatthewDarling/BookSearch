@@ -39,8 +39,6 @@
 (def content :.content)
 (def file-loader :.ui.active.progress.indicating.blue.file-loader)
 (def form :.ui.form)
-;(def input :input)
-(def input-wrapper :div)
 (def row :.row)
 
 ;; Icons ----------------------------------------
