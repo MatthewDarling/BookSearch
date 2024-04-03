@@ -1,3 +1,4 @@
+![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/44034698-f08b-4120-93b8-43f3756bf3f6)
 # BookSearch
 This is a small Clojure(script) + PostgreSQL application, which, on its surface, is a user interface that allows for searching and content retrieval of large texts.  The purpose and reason-to-be for this application is twofold:
 
