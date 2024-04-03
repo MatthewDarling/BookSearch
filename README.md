@@ -27,9 +27,22 @@ We wanted to create an opportunity to explore modern tools for Clojurescript, an
 
 ![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/f01c9331-fad7-40b6-9f9f-59310e4a3ec7)
 
-| fast |builtin |
+| fast TS_FAST_HEADLINE |builtin TS_HEADLINE |
 | --- | --- |
 | ![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/6215ca00-bda1-4ea9-934a-aab068975a4f) |![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/570ec151-95f3-4d63-ac1f-7762f17b333f) |
+| ![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/19b1563a-bc05-439f-838a-f446196fc2c4)
+ |![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/bc78a51a-6ade-498e-a403-6b08d9c76c4f)
+ |
+| ![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/94297ed6-66c1-4358-9910-ce270a856843)
+ |![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/843e0d53-502a-457d-9b82-5a1dfdf33a9c)
+ |
+| ![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/5ecdaabe-7069-40f4-b71e-2c3505e9a1b3)
+ |![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/601adf6b-c833-4de0-93e8-48b51f299c4a)
+ |
+| ![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/14fd9ead-8fcc-4ffe-9468-cc98fec69e31)
+ |![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/046d9502-4bff-45bf-80c4-405eeb272433)
+ |
+
 
 
 ## Setup
