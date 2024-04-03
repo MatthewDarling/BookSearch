@@ -23,6 +23,15 @@ We wanted to create an opportunity to explore modern tools for Clojurescript, an
 - Next.JDBC - https://github.com/seancorfield/next-jdbc
 - Reitit Router - https://github.com/metosin/reitit
 
+## UI in Pictures
+
+![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/f01c9331-fad7-40b6-9f9f-59310e4a3ec7)
+
+| fast |builtin |
+| --- | --- |
+| ![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/6215ca00-bda1-4ea9-934a-aab068975a4f) |![image](https://github.com/MatthewDarling/BookSearch/assets/6935998/570ec151-95f3-4d63-ac1f-7762f17b333f) |
+
+
 ## Setup
 ### Prerequisites
 - PostgreSQL 14+
