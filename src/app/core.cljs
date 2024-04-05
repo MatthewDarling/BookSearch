@@ -11,31 +11,28 @@
 (def routes
   (rf/router
    [["/"
-     {:name ::frontpage
-      :view file.list/file-list
-      :controllers []}]
+     {:name        ::frontpage
+      :view        file.list/file-list}]
     ["file/:id"
-     {:name ::file
-      :view file/file-viewer
-      :parameters {:path {:id js/parseInt}}
-      :controllers [{:parameters {:path [:id]}}]}]]
-   {:data {:controllers []}}))
+     {:name        ::file
+      :view        file/file-viewer
+      :parameters  {:path {:id js/parseInt}}
+      :controllers [{:parameters {:path [:id]}}]}]]))
 
 (defui current-page []
-  (let [[match set-match!] (ui/use-state nil)]
+  (let [[match set-match!] (ui/use-state nil)
+        update-match (fn [new-match]
+                      (set-match!
+                       (fn [old-match]
+                         (some->> new-match
+                                  (rfc/apply-controllers (:controllers old-match))
+                                  (assoc new-match :controllers)))))]
     (ui/use-effect
      (fn []
-       (when-not match 
+       (when-not match
          (rfe/start!
           routes
-          (fn [new-match]
-            (set-match!
-             (fn [old-match]
-               (when new-match
-                 (assoc new-match
-                        :controllers
-                        (rfc/apply-controllers (:controllers old-match)
-                                               new-match))))))
+          update-match
           {:use-fragment true}))))
     (when match
       (let [view (:view (:data match))]

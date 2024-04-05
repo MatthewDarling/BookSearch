@@ -9,9 +9,9 @@
 (def router
   (ring/router
    ["/api"
-    ["/list" {:get handlers/list-files-handler}]
-    ["/file" {:get handlers/file-contents-handler}]
-    ["/search" {:get handlers/file-search-handler}]]))
+    ["/list" {:get handlers/-list-files-handler}]
+    ["/file" {:get handlers/-file-contents-handler}]
+    ["/search" {:get handlers/-file-search-handler}]]))
 
 (def app
   (ring/ring-handler

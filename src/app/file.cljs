@@ -65,6 +65,39 @@
       (.add (.-classList (.item class-list (fn->apply result-no)))
             "focussed-result"))))
 
+(defui navigation 
+  [{:keys [on-click result-no class-list]}]
+  ($ sui/buttons
+     {:class [:fluid]}
+     ($ sui/button
+        {:on-click      #(on-click dec)
+         :class         [:basic
+                         (when (>= result-no 1)
+                           :green)]
+         :data-tooltip  "Scroll to the previous result"
+         :data-position "bottom right"
+         :disabled      (< result-no 1)}
+        ($ :i.icon.angle.double.left))
+     ($ sui/button
+        {:on-click      #(on-click (partial * 1))
+         :class         [:basic
+                         (when-not (neg? result-no)
+                           :blue)]
+         :disabled      (= result-no -1)
+         :data-tooltip  "Scroll to the current result"
+         :data-position "bottom right"}
+        ($ :i.icon.map.pin))
+     ($ sui/button
+        {:on-click      #(on-click inc)
+         :class         [:basic
+                         (when (< result-no
+                                  (- (.-length class-list) 1))
+                           :green)]
+         :disabled      (>= result-no (- (.-length class-list) 1))
+         :data-tooltip  "Scroll to the next result"
+         :data-position "bottom right"}
+        ($ :i.icon.angle.double.right))))
+
 (defui search-results-list
   "UI controls for searching and scrolling through the document between
    foudn search results"
@@ -116,36 +149,9 @@
                    :result-no      result-no
                    :class-list     class-list})))
           ($ :hr)
-          ($ sui/buttons
-             {:class [:fluid]}
-             ($ sui/button
-                {:on-click      #(on-click dec)
-                 :class         [:basic
-                                 (when (>= result-no 1)
-                                   :green)]
-                 :data-tooltip  "Scroll to the previous result"
-                 :data-position "bottom right"
-                 :disabled      (< result-no 1)}
-                ($ :i.icon.angle.double.left))
-             ($ sui/button
-                {:on-click      #(on-click (partial * 1))
-                 :class         [:basic
-                                 (when-not (neg? result-no)
-                                   :blue)]
-                 :disabled      (= result-no -1)
-                 :data-tooltip  "Scroll to the current result"
-                 :data-position "bottom right"}
-                ($ :i.icon.map.pin))
-             ($ sui/button
-                {:on-click      #(on-click inc)
-                 :class         [:basic
-                                 (when (< result-no 
-                                          (- (.-length class-list) 1))
-                                   :green)]
-                 :disabled      (>= result-no (- (.-length class-list) 1))
-                 :data-tooltip  "Scroll to the next result"
-                 :data-position "bottom right"}
-                ($ :i.icon.angle.double.right)))
+          ($ navigation {:on-click on-click
+                         :result-no result-no 
+                         :class-list class-list})
           ($ :hr)
           ($ :a {:href "#"} "<< Back to Search")))))
 

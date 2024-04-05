@@ -3,7 +3,9 @@
    [honey.sql :as sql]
    [next.jdbc :as jdbc]
    [ring.util.codec :as codec]
-   [ring.util.response :as response]))
+   [ring.util.response :as response])
+  #_(:gen-class
+   :implements [com.amazonaws.services.lambda.runtime.RequestStreamHandler]))
 
 (sql/register-op! (keyword "@@"))
 
@@ -13,18 +15,24 @@
                 :password "bookitysearch"})
 
 (defn query-mode->tsp-query-fn
+  "Converts Query Mode (phrase/logical) into the appropriate TSP query parser.
+   Be careful: ts_query is not the same as tsp_query"
   [query-mode]
   (if (= "phrase" query-mode)
     :phraseto_tspquery
     :to_tspquery))
 
 (defn query-mode->query-fn
+  "Converts Query Mode (phrase/logical) into the appropriate BUILT-IN query parser"
   [query-mode]
   (if (= "phrase" query-mode)
     :phraseto_tsquery
     :to_tsquery))
 
 (defn compile-fast-search-query
+  "Given a user-inputted query string and a search mode (phrase/logical), performs
+   a lookup of file contents using the ts_fast_query system, aggregating across
+   file_lookup_16k to perform fast search and recall. "
   [query query-mode]
   {:pre [(#{"phrase" "logical"} query-mode)]}
   {:select   [:file_id 
@@ -52,6 +60,9 @@
    :group-by [:file_id :title :author]})
 
 (defn compile-search-query
+  "Given a user-inputted query string and a search mode (phrase/logical), and a
+   strategy (ts_fast_headline, ts_semantic_headline, ts_headline), and performs
+   a lookup of file contents using the query appropriate to the strategy."
   [query query-mode strategy]
   {:pre [(#{"phrase" "logical"} query-mode)
          (#{"ts_headline" "ts_semantic_headline" "ts_fast_headline"} strategy)]}
@@ -67,7 +78,9 @@
      :where [:in :file_id {:select [[[:distinct :file_id]]] :from [:file_lookup_16k]
                            :where [(keyword "@@") :content_tsv [(query-mode->query-fn query-mode) query]]}]}))
 
-(defn add-cors-headers [resp]
+(defn add-cors-headers 
+  "Adds CORS (cross-origin resource sharing) headers to response"
+  [resp]
   (-> resp
       (response/header "Access-Control-Allow-Origin"
                        "http://localhost:8080")
@@ -75,6 +88,8 @@
                        "true")))
 
 (defn error->response
+  "Given an error object, produces a 500 response with a string representation of 
+   the error."
   [error]
   (-> {:error (.toString error)}
       pr-str
@@ -83,6 +98,8 @@
       add-cors-headers))
 
 (defn query->response
+  "Given a JDBC connection map and an HSQL map representing an SQL query, executes
+   the query and creates an http response object with that data."
   [connection query-map]
   (->> query-map
        sql/format
@@ -92,10 +109,8 @@
        add-cors-headers))
 
 ;; Responses ------------------------------------------------------------------
-(defn file-contents-handler
-  "Async and sync compatible handler. Most example online show only a synchronous
-  handler, but when I only define the one arg version, I get 'wrong number of
-  args' when calling with curl."
+(defn -file-contents-handler
+  "Responds to requests for the fill contents of a file"
   ([{{:strs [file_id]} :query-params}]
    (let [file-id (Integer/parseInt file_id)
          my-datasource (jdbc/get-datasource db-config)]
@@ -105,9 +120,10 @@
                          :from   [:files]
                          :where  [:= :files.file_id file-id]}))))
   ([request respond raise]
-   (respond (file-contents-handler request))))
+   (respond (-file-contents-handler request))))
 
-(defn list-files-handler
+(defn -list-files-handler
+  "Responds to a file list query"
   ([{{:strs [query query_mode strategy]} :query-params}]
    (let [my-datasource (jdbc/get-datasource db-config)]
      (with-open [connection (jdbc/get-connection my-datasource)]
@@ -119,9 +135,10 @@
          (catch Exception e
            (error->response e))))))
   ([request respond raise]
-   (respond (list-files-handler request))))
+   (respond (-list-files-handler request))))
 
-(defn file-search-handler
+(defn -file-search-handler
+  "Responds to a query for the list of matching search terms in a document."
   ([{{:strs [query query_mode file_id]} :query-params}]
    {:pre [(#{"phrase" "logical"} query_mode)]}
    (let [query (codec/form-decode query)
@@ -145,5 +162,7 @@
          (catch Exception e
            (error->response e))))))
   ([request respond raise]
-   (respond (file-search-handler request))))
+   (respond (-file-search-handler request))))
 
+(defn -main [& args]
+  (str "Passed : " args))

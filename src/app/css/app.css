@@ -242,7 +242,7 @@ hr {
 }
 
 .offset-popup {
-  transform(translateY(44px));
+  transform: translateY(44px);
 }
 
 
