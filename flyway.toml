@@ -5,6 +5,12 @@ url = "jdbc:postgresql://localhost:5432/booksearch"
 user = "booksearch"
 password = "bookitysearch"
 
+[environments.prod]
+url = "jdbc:postgresql://terraform-20240411174257604000000001.cb4ciagawxik.us-east-2.rds.amazonaws.com:5432/booksearch"
+user = "booksearch"
+password = "bookitysearch"
+
 [flyway]
 environment = "local" # It is recommended to configure environment as a commandline argument. This allows using different environments depending on the caller.
 locations = ["filesystem:./sql/booksearch"]
+baselineOnMigrate = true
