@@ -2,7 +2,8 @@
   (:require [app.server.handlers :as handlers] 
             [reitit.ring :as ring]
             [reitit.ring.middleware.parameters :as middleware]
-            [ring.adapter.jetty :as jetty])
+            [ring.adapter.jetty :as jetty]
+            [ring.middleware.json :as ring.json])
   (:gen-class))
 
 
@@ -20,7 +21,8 @@
     {:not-found (constantly
                  {:status 404
                   :body "Not found"})})
-   {:middleware [middleware/parameters-middleware]}))
+   {:middleware [middleware/parameters-middleware
+                 ring.json/wrap-json-response]}))
 
 (def port 3000)
 

@@ -10,7 +10,8 @@
             org.clojure/clojure               {:mvn/version "1.11.1"}
             org.clojure/clojurescript         {:mvn/version "1.11.60"}
             org.postgresql/postgresql         {:mvn/version "42.6.0"}
-            ring/ring                         {:mvn/version "1.11.0"}}
+            ring/ring                         {:mvn/version "1.11.0"}
+            ring/ring-json                    {:mvn/version "0.5.1"}}
  :npm-deps {cljsjs/semantic-ui-react "0.88.1-0"}
  :paths    ["src"]
  :aliases  {:dev  {:extra-paths ["dev"]

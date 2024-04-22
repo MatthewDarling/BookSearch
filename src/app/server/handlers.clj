@@ -104,7 +104,6 @@
   (->> query-map
        sql/format
        (jdbc/execute! connection)
-       pr-str
        response/response
        add-cors-headers))
 
