@@ -1,4 +1,5 @@
 {:deps     {thheller/shadow-cljs              {:mvn/version "2.25.8"}
+            aero/aero                         {:mvn/version "1.1.6"}
             cljs-ajax/cljs-ajax               {:mvn/version "0.8.4"}
             cljsjs/semantic-ui-react          {:mvn/version "0.88.1-0"}
             com.github.seancorfield/honeysql  {:mvn/version "2.6.1126"}
@@ -13,7 +14,7 @@
             ring/ring                         {:mvn/version "1.11.0"}
             ring/ring-json                    {:mvn/version "0.5.1"}}
  :npm-deps {cljsjs/semantic-ui-react "0.88.1-0"}
- :paths    ["src"]
+ :paths    ["src" "resources"]
  :aliases  {:dev  {:extra-paths ["dev"]
                    :extra-deps  {binaryage/devtools {:mvn/version "1.0.7"}}}
             :repl {:main-opts ["-i" "src/app/server/server.clj" "-e" "(in-ns 'app.server.server)" "-r"]}}

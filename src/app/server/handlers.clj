@@ -1,5 +1,7 @@
 (ns app.server.handlers
   (:require
+   [aero.core :refer [read-config]]
+   [clojure.java.io :as io]
    [honey.sql :as sql]
    [next.jdbc :as jdbc]
    [ring.util.codec :as codec]
@@ -9,10 +11,11 @@
 
 (sql/register-op! (keyword "@@"))
 
-(def db-config {:dbtype "postgres"
-                :dbname "booksearch"
-                :user "booksearch"
-                :password "bookitysearch"})
+(def db-config
+  (-> "config.edn"
+      io/resource
+      (read-config {:profile :dev})
+      :db-config))
 
 (defn query-mode->tsp-query-fn
   "Converts Query Mode (phrase/logical) into the appropriate TSP query parser.

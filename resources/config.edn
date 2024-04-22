@@ -1,0 +1,1 @@
+{:db-config #include #join [#env HOME "/.config/booksearch/db.edn"]}
