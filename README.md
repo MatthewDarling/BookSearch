@@ -78,7 +78,24 @@ make load_files DB_USER=booksearch DB_PASS=bookitysearch
 ```
 Careful! This script can take a few minutes to run. Grab a drink and take a breath.
 
-### Step 4: Start the Server
+### Step 4: Configure the Server
+Create a directory `~/.config/booksearch`, and then the file `~/.config/booksearch/db.edn` with contents:
+
+``` clojure
+{:dbtype "postgres"
+ :host #profile {:dev "localhost"
+                 :prod "example.us-east-2.rds.amazonaws.com"}
+ :port #long #or [#env "db_port" 5432]
+ :dbname #or [#env "db_name" "booksearch"]
+ :user #or [#env "db_user" "booksearch"]
+ :password #or [#env "db_password" "bookitysearch"]}
+```
+
+By default, the server will load the :dev profile and connect to your localhost database. Edit `src/app/server/handlers.clj` to change the profile to be loaded to connect to RDS from your local.
+
+For a full AWS deployment, the config is sufficiently different as to be hosted in another repository.
+
+### Step 5: Start the Server
 From the `BookSearch` directory, run the following to install backend dependancies:
 ```
 clj -M:repl
@@ -94,7 +111,7 @@ server running in port 3000
 #object[org.eclipse.jetty.server.Server 0x4678320a "Server@4678320a{STARTED}[11.0.18,sto=0]"]
 ```
 
-### Step 5: Start the Client Application
+### Step 6: Start the Client Application
 To start the client application for development and hot-reloading of code, use:
 ```shell
 yarn      # install NPM deps
