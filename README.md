@@ -128,11 +128,3 @@ clj -M:repl
 (-main) ;; to start the server
 (reset) ;; to update the server with new changes
 ```
-
-# To Do List
-
-1. Implement logical query_mode - DONE!
-2. Implement ts_fast_headline strategy - DONE!
-3. Improve API response handling, pr-str is probably not the right approach
-4. Implement front-end routing - DONE!
-5. Maybe offer searching within a single document, displaying its text - DONE!
