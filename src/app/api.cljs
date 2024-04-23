@@ -2,7 +2,8 @@
   (:require 
    [ajax.core :refer [GET]] 
    [cljs.reader]
-   [clojure.set] 
+   [clojure.set]
+   [clojure.walk]
    [uix.dom]))
 
 ;; API Request ----------------------------------------------------------------
@@ -19,7 +20,7 @@
     (make-remote-call
      (str "http://localhost:3000/api/file?file_id=" id)
      (fn [response]
-       (set-file! #(first (cljs.reader/read-string response))))
+       (set-file! #(first (js->clj response :keywordize-keys true))))
      js/console.error)))
 
 (defn get-search-results
@@ -31,7 +32,7 @@
         "&query=" (js/encodeURIComponent search)
         "&query_mode=" mode)
    (fn [response]
-     (let [resp (cljs.reader/read-string response)]
+     (let [resp (-> response js->clj clojure.walk/keywordize-keys)]
        (set-search-results! (->> resp
                                  distinct
                                  (sort-by (comp count :term))
@@ -49,7 +50,7 @@
                   state, and the time-start/end of the request."
   [set-state!]
   (fn [response]
-    (let [resp (cljs.reader/read-string response)]
+    (let [resp (-> response js->clj clojure.walk/keywordize-keys)]
       (set-state!
        (fn [s] (assoc s
                       :error nil
