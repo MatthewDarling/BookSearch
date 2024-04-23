@@ -1,11 +1,11 @@
-
-
 VERSION = 1.0
 SCHEMA = public
-DB_NAME = default_database
+DB_HOST = localhost
 DB_USER = default_user
+DB_PASS = default_password
+DB_PORT = 5432
 
-.PHONY: all compile_sql create_db fill_db kill_db
+.PHONY: all compile_sql create_db load_files kill_db
 
 all: compile_sql
 
@@ -17,11 +17,8 @@ create_db:
 	psql -U $(DB_USER) -d booksearch -f ./sql/create_extensions.sql
 	flyway migrate
 
-fill_db:
-	psql -U $(DB_USER) -v path="'$(shell pwd)/public_domain_texts'" -d booksearch -f ./sql/load_public_domain_texts.sql
-
 load_files:
-	bash load_files.sh
+	DB_HOST=$(DB_HOST) DB_NAME=booksearch DB_USER=$(DB_USER) DB_PASS=$(DB_PASS) DB_PORT=$(DB_PORT) bb --classpath . --main load-gutenberg
 
 kill_db:
 	psql -U $(DB_USER) -d postgres -f ./sql/testing_cleanup.sql

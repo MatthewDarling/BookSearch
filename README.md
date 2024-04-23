@@ -23,6 +23,7 @@ We wanted to create an opportunity to explore modern tools for Clojurescript, an
 - HoneySQL - https://github.com/seancorfield/honeysql - Version 2! 
 - Next.JDBC - https://github.com/seancorfield/next-jdbc
 - Reitit Router - https://github.com/metosin/reitit
+- Babashka - https://github.com/babashka/babashka
 
 ## UI in Pictures
 
@@ -44,6 +45,7 @@ We wanted to create an opportunity to explore modern tools for Clojurescript, an
 - Flyway : https://www.red-gate.com/products/flyway/community/download/
 - make : O/S-dependant CLI tool
 - yarn : https://yarnpkg.com/
+- Babashka : https://github.com/babashka/babashka
   
 ### Step 1: Make PGSQL extensions from submodules
 In order to build to latest version of the PGSQL Extensions we are using, where each is linked as a git submodule under the project root, we will execute the following command:
@@ -72,10 +74,9 @@ INSERT INTO files
 ```
 That said, we also have filled `public_domain_texts` with a selection of the 50 most dowloaded texts from Project Gutenberg (https://www.gutenberg.org/browse/scores/top), and they can be imported using:
 ```
-make load_files
+make load_files DB_USER=booksearch DB_PASS=bookitysearch
 ```
 Careful! This script can take a few minutes to run. Grab a drink and take a breath.
-** TODO: improve the performance of this script... :)
 
 ### Step 4: Start the Server
 From the `BookSearch` directory, run the following to install backend dependancies:
