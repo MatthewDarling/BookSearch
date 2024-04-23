@@ -12,11 +12,11 @@
 
 (def db-config
   {:dbtype   "postgresql"
-   :host     "terraform-20240411174257604000000001.cb4ciagawxik.us-east-2.rds.amazonaws.com"
-   :dbname   "booksearch"
-   :user     "booksearch"
-   :password "bookitysearch"
-   :port     5432})
+   :host     (or (System/getenv "DB_HOST") "localhost")
+   :dbname   (or (System/getenv "DB_NAME") "booksearch")
+   :user     (or (System/getenv "DB_USER") "booksearch")
+   :password (or (System/getenv "DB_PASS") "bookitysearch")
+   :port     (or (System/getenv "DB_PORT") 5432)})
 
 (defn files-to-process
   [target-dir]
