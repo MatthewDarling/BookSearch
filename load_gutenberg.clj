@@ -53,4 +53,4 @@
   []
   (pg/execute! db-config ["DELETE FROM files;"]))
 
-(upload-all!)
+(comment (upload-all!))
