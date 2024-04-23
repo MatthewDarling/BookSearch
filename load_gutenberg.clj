@@ -1,8 +1,9 @@
-;;; A Babashka script to upload parsed ebooks to Postgres
-;;; To do: support uploading both to local Postgres and RDS
+(ns load-gutenberg
+  "A Babashka script to upload parsed ebooks to Postgres")
 
 (require '[babashka.pods :as pods])
 (pods/load-pod 'org.babashka/postgresql "0.1.0")
+(require '[babashka.deps :as deps])
 (deps/add-deps '{:deps {com.github.seancorfield/honeysql {:mvn/version "2.2.861"}}})
 (require '[babashka.fs :as fs])
 (require '[clojure.string :as string])
@@ -23,8 +24,8 @@
 
 (defn text-pattern-for-ebook
   [title]
-  (let [prelude (str "\\*\\*\\* START OF THE PROJECT GUTENBERG EBOOK " (str/upper-case title) " \\*\\*\\*")
-        closing (str "\\*\\*\\* END OF THE PROJECT GUTENBERG EBOOK " (str/upper-case title) " \\*\\*\\*")]
+  (let [prelude (str "\\*\\*\\* START OF THE PROJECT GUTENBERG EBOOK " (string/upper-case title) " \\*\\*\\*")
+        closing (str "\\*\\*\\* END OF THE PROJECT GUTENBERG EBOOK " (string/upper-case title) " \\*\\*\\*")]
       (re-pattern (str "(?s)" prelude "(.+)" closing))))
 
 (defn parse-gutenberg-txt
@@ -53,4 +54,5 @@
   []
   (pg/execute! db-config ["DELETE FROM files;"]))
 
-(comment (upload-all!))
+(defn -main [& args]
+  (upload-all!))
